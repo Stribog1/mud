@@ -5838,6 +5838,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		vict->set_idnum(value);
 		break;
+
 	case 36:
 		if (!IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO) && ch != vict)
 		{
@@ -5849,17 +5850,14 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char("Вы не можете ЭТО изменить.\r\n", ch);
 			return (0);
 		}
-		if (!Password::check_password(vict, val_arg))
-		{
-			send_to_char(ch, "%s\r\n", Password::BAD_PASSWORD);
-			return 0;
-		}
+
 		Password::set_password(vict, val_arg);
 		Password::send_password(GET_EMAIL(vict), val_arg, std::string(GET_NAME(vict)));
 		sprintf(buf, "%s заменен пароль богом.", GET_PAD(vict, 2));
 		add_karma(vict, buf, GET_NAME(ch));
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
 		break;
+
 	case 37:
 		SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_NODELETE);
 		break;

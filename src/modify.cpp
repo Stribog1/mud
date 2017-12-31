@@ -969,8 +969,10 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				}
 			}
 			else
+			{
 				SEND_TO_Q("Письмо удалено.\r\n", d);
-			//log("[SA] 5s");
+			}
+
 			d->mail_to = 0;
 			if (d->writer)
 			{
@@ -978,19 +980,18 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				d->writer.reset();
 			}
 		}
-		else if (STATE(d) == CON_EXDESC)  	//log("[SA] 7s");
+		else if (STATE(d) == CON_EXDESC)
 		{
 			if (terminator != 1)
 			{
 				SEND_TO_Q("Создание описания прервано.\r\n", d);
 			}
 			SEND_TO_Q(MENU, d);
-			d->connected = CON_MENU;
-			//log("[SA] 7f");
+			d->connected = CON_ACCOUNT;
 		}
 		else if (!d->connected && d->character && !IS_NPC(d->character))
 		{
-			if (terminator == 1)  	//log("[SA] 8s");
+			if (terminator == 1)
 			{
 				if (d->writer)
 				{
@@ -998,7 +999,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 					d->writer.reset();
 				}
 			}
-			else  	//log("[SA] 9s");
+			else
 			{
 				if (d->backstr)
 				{
@@ -1021,6 +1022,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			
 			PLR_FLAGS(d->character).unset(PLR_MAILING);
 		}
+
 		if (d->backstr)
 		{
 			free(d->backstr);

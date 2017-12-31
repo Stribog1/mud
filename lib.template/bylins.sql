@@ -3,13 +3,11 @@
 create table "accounts"
 (
        "id" integer primary key autoincrement,
-       "email" text not null,
+       "email" text not null unique,
        "password" text not null,
-       "failed_attempts" integer not null,                -- теукщее количество неудачных попыток входа с момента последнего успешного входа
-       "confirmed" bool default false
+       "failed_attempts" integer,                         -- теукщее количество неудачных попыток входа с момента последнего успешного входа
+       "created" timestamp not null default current_timestamp
 );
-
-create unique index "accounts_email" on "accounts"("email");
 
 create table "players_ownership"
 (

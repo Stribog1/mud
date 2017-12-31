@@ -1,45 +1,40 @@
 #ifndef __ACCOUNTS_HPP__
 #define __ACCOUNTS_HPP__
 
-#include <list>
-#include <memory>
+#include "account.hpp"
+#include "accounts.storage.hpp"
 
-class Account
-{
-public:
-	using shared_ptr = std::shared_ptr<Account*>;
-	using player_uid_t = int;
-
-	Account() {}
-
-private:
-	using players_list_t = std::list<player_uid_t>;	// list of players' UIDs
-
-	std::string m_email;
-	std::string m_password;
-
-	/// The flag whether user confirmed ownership of his ID. Usually in order to do it some secret code
-	/// is being sent to user's email. Then he must enter it to confirm email ownership.
-	bool m_confirmed;
-
-	/// List of players assigned to this account
-	players_list_t m_players_list;
-};
+#include <unordered_map>
 
 class Accounts
 {
 public:
-	Accounts() {}
+	Accounts(const AbstractAccountsStorage::shared_ptr& storage);
+	~Accounts();
 
 	bool save() const;
 	bool load();
 
+	Account::shared_ptr get(const std::string& email) const;
+	bool registered(const std::string& email) const;
+	bool check_password(const std::string& email, const std::string& password) const;
+	bool add(const std::string& email, const std::string& password);
+
+	const char* get_last_error() const { return m_storage->get_last_error(); }
+
 private:
-	using accounts_list_t = std::list<Account::shared_ptr>;
+	using email_to_account_index_t = std::unordered_map<std::string, accounts_list_t::iterator>;
+
+	bool build_indexes();
 
 	/// List of all game accounts. For now we completely keep it in the memory.
 	accounts_list_t m_accounts;
+	email_to_account_index_t m_email_to_account_index;
+
+	AbstractAccountsStorage::shared_ptr m_storage;
 };
+
+extern Accounts accounts;	// users's accounts
 
 #endif // __ACCOUNTS_HPP__
 

@@ -1076,9 +1076,91 @@ void DelegatedStringWriter::clear()
 	m_delegated_string = nullptr;
 }
 
-DESCRIPTOR_DATA::DESCRIPTOR_DATA() : bad_pws(0),
+namespace
+{
+	class DefaultDescriptorPrinter: public AbstractDescriptorPrinter
+	{
+	public:
+		virtual void print(const char* message) override {}
+	};
+
+	class SimpleDescriptorPrinter : public AbstractDescriptorPrinter
+	{
+	public:
+		SimpleDescriptorPrinter(DESCRIPTOR_DATA* descriptor) : m_descriptor(descriptor) {}
+
+		virtual void print(const char* message) override;
+
+	private:
+		DESCRIPTOR_DATA * m_descriptor;
+	};
+
+	void SimpleDescriptorPrinter::print(const char* message)
+	{
+		if (m_descriptor)
+		{
+			SEND_TO_Q(message, m_descriptor);
+		}
+	}
+}
+
+ConnectionState::ConnectionState() : m_value(CON_PLAYING), m_printer(std::make_shared<DefaultDescriptorPrinter>())
+{
+}
+
+ConnectionState& ConnectionState::operator=(const int value)
+{
+	if (CON_ACCOUNT == m_value
+		&& CON_ACCOUNT != value)
+	{
+		m_printer->print("Now you are leaving accounts menu.");
+	}
+
+	switch (value)
+	{
+	case CON_GET_ACCOUNT_ID:
+		m_printer->print("Enter your account ID (email address) or \"новый\" to create new account: ");
+		break;
+
+	case CON_ACCOUNT_PASSWORD:
+		m_printer->print("Enter password of your account: ");
+		break;
+
+	case CON_GET_NEW_ACCOUNT_ID:
+		m_printer->print("Enter your email address. This will be your account ID: ");
+		break;
+
+	case CON_GET_NEW_ACCOUNT_PASSWORD:
+		m_printer->print("Enter new password: ");
+		break;
+
+	case CON_GET_NEW_ACCOUNT_PASSWORD_CONFIRMATION:
+		m_printer->print("Confirm your password (just enter it again): ");
+		break;
+
+	case CON_GET_CONFIRMATION_CODE:
+		m_printer->print("Enter confirmation code: ");
+		break;
+
+	case CON_ACCOUNT:
+		m_printer->print("Now you are in accounts menu. Enter your choice: ");
+		break;
+
+	default:
+		break;
+	}
+
+	m_value = value;
+	return *this;
+}
+
+ConnectionState::operator int() const
+{
+	return m_value;
+}
+
+DESCRIPTOR_DATA::DESCRIPTOR_DATA(): bad_pws(0),
 	idle_tics(0),
-	connected(0),
 	desc_num(0),
 	input_time(0),
 	login_time(0),
@@ -1120,6 +1202,8 @@ DESCRIPTOR_DATA::DESCRIPTOR_DATA() : bad_pws(0),
 	inbuf[0] = 0;
 	last_input[0] = 0;
 	small_outbuf[0] = 0;
+
+	connected.set_printer(std::make_shared<SimpleDescriptorPrinter>(this));
 }
 
 void DESCRIPTOR_DATA::msdp_support(bool on)
@@ -1201,6 +1285,38 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output)
 	{
 		*output = '\0';
 	}
+}
+
+bool DESCRIPTOR_DATA::send_confirmation_code()
+{
+	int random_number = number(1000000, 9999999);
+
+	std::stringstream code;
+	code << random_number;
+	confirmation_code = code.str();
+
+	std::stringstream command_line;
+	command_line << "python3 send_code.py " << account_id << " " << random_number << " &";
+
+	std::stringstream ss;
+	ss << "Confirmation code has been sent to " << account_id << ". Check your email.";
+
+#ifdef WIN32
+	const auto result = true;
+	ss << " Confirmation code: " << confirmation_code << ".";
+#else
+	const auto result = 0 != system(command_line.str().c_str());
+#endif
+
+	if (!result)
+	{
+		return false;
+	}
+
+	ss << "\n";
+	SEND_TO_Q(ss.str().c_str(), this);
+
+	return true;
 }
 
 EXTRA_DESCR_DATA::~EXTRA_DESCR_DATA()

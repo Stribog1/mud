@@ -67,7 +67,6 @@ extern const char *weapon_class[];
 // local functions
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
-void prune_crlf(char *txt);
 int valid_email(const char *address);
 
 // external functions
@@ -225,17 +224,6 @@ char *str_dup(const char *source)
 	}
 	CREATE(new_z, 1);
 	return (strcpy(new_z, ""));
-}
-
-// * Strips \r\n from end of string.
-void prune_crlf(char *txt)
-{
-	size_t i = strlen(txt) - 1;
-
-	while (txt[i] == '\n' || txt[i] == '\r')
-	{
-		txt[i--] = '\0';
-	}
 }
 
 bool is_head(std::string name)

@@ -175,8 +175,7 @@ void process(DESCRIPTOR_DATA *d, Type type)
 	if (ch->get_total_gold() < price)
 	{
 		SEND_TO_Q("\r\nУ вас нет такой суммы!\r\n", d);
-		SEND_TO_Q(MENU, d);
-		STATE(d) = CON_MENU;
+		STATE(d) = CON_ACCOUNT;
 	}
 	else
 	{
@@ -189,8 +188,7 @@ void process(DESCRIPTOR_DATA *d, Type type)
 			// если мы попали сюда, значит чара не вывело на переброс статов
 			// после проверки в ValidateStats()
 			SEND_TO_Q("Произошла какая-то ошибка, сообщите богам!\r\n", d);
-			SEND_TO_Q(MENU, d);
-			STATE(d) = CON_MENU;
+			STATE(d) = CON_ACCOUNT;
 			snprintf(buf_, sizeof(buf_), "%s failed to change %s",
 				d->character->get_name().c_str(), reset_prices.at(type).log_text.c_str());
 			mudlog(buf_, NRM, LVL_IMMORT, SYSLOG, TRUE);
@@ -262,7 +260,7 @@ void parse_menu(DESCRIPTOR_DATA *d, const char *arg)
 	{
 		SEND_TO_Q("Изменение параметров персонажа было отменено.\r\n", d);
 		SEND_TO_Q(MENU, d);
-		STATE(d) = CON_MENU;
+		STATE(d) = CON_ACCOUNT;
 	}
 }
 

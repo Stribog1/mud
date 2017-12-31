@@ -3122,7 +3122,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	if (!is_npc
 		&& ch->desc != NULL)
 	{
-		STATE(ch->desc) = CON_MENU;
+		STATE(ch->desc) = CON_ACCOUNT;
 		SEND_TO_Q(MENU, ch->desc);
 		if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs)
 		{

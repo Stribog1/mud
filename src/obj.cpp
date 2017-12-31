@@ -150,8 +150,15 @@ void OBJ_DATA::detach_ex_description()
 void OBJ_DATA::purge()
 {
 	caching::obj_cache.remove(this);
+
 	//см. комментарий в структуре BloodyInfo из pk.cpp
+	/*
+	TODO: possible coredump here if boot_db() failed because remove_obj() uses global variable bloody_map
+	but nobody cares about order of destroying global variables. Specifically, if bloody_map had destroyed
+	before object_list then here we will try to get access to a destroyed variable.
+	*/
 	bloody::remove_obj(this);
+
 	//weak_ptr тут бы был какраз в тему
 	Celebrates::remove_from_obj_lists(this->get_uid());
 }

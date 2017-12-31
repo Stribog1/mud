@@ -59,7 +59,7 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 	if (!(fp = fopen(ANAME_FILE, "r")))
 	{
 		perror("SYSERR: Unable to open '" ANAME_FILE "' for reading");
-	log("was_agree_name end");
+		log("was_agree_name end");
 		return (1);
 	}
 //2. Find name in list ...
@@ -307,9 +307,13 @@ int process_auto_agreement(DESCRIPTOR_DATA * d)
 {
 	// Check for name ...
 	if (!was_agree_name(d))
+	{
 		return 0;
+	}
 	else if (!was_disagree_name(d))
+	{
 		return 1;
+	}
 
 	return 2;
 }

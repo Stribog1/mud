@@ -141,16 +141,17 @@ bool compare_password(CHAR_DATA *ch, const std::string &pwd)
 * Проверка пароля на длину и тупость
 * \return 0 - некорректный пароль, 1 - корректный
 */
-bool check_password(const CHAR_DATA *ch, const char *pwd)
+bool check_password(const std::string& email, const char *pwd)
 {
 // при вырубленном криптовании на локалке пароль можно ставить любой
 #ifndef NOCRYPT
-	if (!pwd || !str_cmp(pwd, GET_PC_NAME(ch)) || strlen(pwd) > MAX_PWD_LENGTH || strlen(pwd) < MIN_PWD_LENGTH)
+	if (!pwd || !str_cmp(pwd, email.c_str()) || strlen(pwd) > MAX_PWD_LENGTH || strlen(pwd) < MIN_PWD_LENGTH)
 		return 0;
 #else
-	UNUSED_ARG(ch);
+	UNUSED_ARG(email);
 	UNUSED_ARG(pwd);
 #endif
+
 	return 1;
 }
 

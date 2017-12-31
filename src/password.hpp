@@ -5,6 +5,8 @@
 #ifndef PASSWORD_HPP_INCLUDED
 #define PASSWORD_HPP_INCLUDED
 
+// TODO: get rid of me
+
 #include "conf.h"
 #include <string>
 
@@ -25,7 +27,7 @@ void send_password(std::string email, std::string password, std::string name);
 void set_all_password_to_email(const char* email, const std::string &pwd, const std::string &name);
 bool compare_password(CHAR_DATA *ch, const std::string &pwd);
 bool compare_password(std::string const &hash, std::string const &pass);
-bool check_password(const CHAR_DATA *ch, const char *pwd);
+bool check_password(const std::string& email, const char *pwd);
 
 std::string generate_md5_hash(const std::string &pwd);
 

@@ -5,7 +5,10 @@ project(bylins)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
+	src/account.cpp
 	src/accounts.cpp
+	src/accounts.storage.cpp
+	src/accounts.storage.sqlite.cpp
 	src/act.comm.cpp
 	src/act.informative.cpp
 	src/act.item.cpp
@@ -157,7 +160,10 @@ set(SOURCES
 	src/debug.utils.cpp)
 
 set(HEADERS
+	src/account.hpp
 	src/accounts.hpp
+	src/accounts.storage.hpp
+	src/accounts.storage.sqlite.hpp
 	src/world.characters.hpp
 	src/shops.implementation.hpp
 	src/global.objects.hpp

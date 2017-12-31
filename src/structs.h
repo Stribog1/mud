@@ -728,19 +728,13 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define CON_CLOSE         1 // Disconnecting     //
 #define CON_GET_NAME      2 // By what name ..?     //
 #define CON_NAME_CNFRM    3 // Did I get that right, x?   //
-#define CON_PASSWORD      4 // Password:         //
-#define CON_NEWPASSWD     5 // Give me a password for x   //
-#define CON_CNFPASSWD     6 // Please retype password: //
+// ... states 4-6 are free
 #define CON_QSEX          7 // Sex?           //
 #define CON_QCLASS        8 // Class?         //
 #define CON_RMOTD         9 // PRESS RETURN after MOTD //
-#define CON_MENU         10 // Your choice: (main menu)   //
+// ... state 10 is free
 #define CON_EXDESC       11 // Enter a new description:   //
-#define CON_CHPWD_GETOLD 12 // Changing passwd: get old   //
-#define CON_CHPWD_GETNEW 13 // Changing passwd: get new   //
-#define CON_CHPWD_VRFY   14 // Verify new password     //
-#define CON_DELCNF1      15 // Delete confirmation 1   //
-#define CON_DELCNF2      16 // Delete confirmation 2   //
+// ... states 12-16 are free
 #define CON_DISCONNECT   17 // In-game disconnection   //
 #define CON_OEDIT        18 //. OLC mode - object edit     . //
 #define CON_REDIT        19 //. OLC mode - room edit       . //
@@ -780,7 +774,14 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define CON_MENU_STATS   53 // оплата сброса стартовых статов из главного меню
 #define CON_SEDIT        54 // sedit - редактирование сетов
 #define CON_RESET_RELIGION   55 // сброс религии из меню сброса статов
-#define CON_RANDOM_NUMBER	 56 // where player enter in the game from new location
+// ... code 56 is free
+#define CON_GET_ACCOUNT_ID	57	// get account ID (or "new" to create new account).
+#define CON_GET_NEW_ACCOUNT_ID	58	// user enters id of the new account
+#define CON_ACCOUNT_PASSWORD	59	// user enters account password (for already existing accounts)
+#define CON_GET_CONFIRMATION_CODE	60	// get confirmation code sent to email (for new accounts); 0 - to resend code.
+#define CON_ACCOUNT	61	// everything related to user's account (in between of entering account's password and selecting a player for the game)
+#define CON_GET_NEW_ACCOUNT_PASSWORD	62
+#define CON_GET_NEW_ACCOUNT_PASSWORD_CONFIRMATION	63
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //
@@ -1652,8 +1653,35 @@ private:
 	std::string m_string;
 };
 
+class AbstractDescriptorPrinter
+{
+public:
+
+	using shared_ptr = std::shared_ptr<AbstractDescriptorPrinter>;
+	virtual ~AbstractDescriptorPrinter() {}
+
+	virtual void print(const char* message) = 0;
+};
+
+class ConnectionState
+{
+public:
+	ConnectionState();
+
+	ConnectionState& operator=(const int value);
+	operator int() const;
+
+	void set_printer(const AbstractDescriptorPrinter::shared_ptr& printer) { m_printer = printer; }
+
+private:
+	int m_value;
+	AbstractDescriptorPrinter::shared_ptr m_printer;
+};
+
 struct DESCRIPTOR_DATA
 {
+	static constexpr int ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD = 3;
+
 	DESCRIPTOR_DATA();
 
 	void msdp_support(bool on);
@@ -1666,11 +1694,13 @@ struct DESCRIPTOR_DATA
 	void string_to_client_encoding(const char* input, char* output) const;
 	auto get_character() const { return original ? original : character; }
 
+	bool send_confirmation_code();
+
 	socket_t descriptor;	// file descriptor for socket    //
 	char host[HOST_LENGTH + 1];	// hostname          //
 	byte bad_pws;		// number of bad pw attemps this login //
 	byte idle_tics;		// tics idle at password prompt     //
-	int connected;		// mode of 'connectedness'    //
+	ConnectionState connected;		// mode of 'connectedness'    //
 	int desc_num;		// unique num assigned to desc      //
 	time_t input_time;
 	time_t login_time;	// when the person connected     //
@@ -1696,6 +1726,13 @@ struct DESCRIPTOR_DATA
 
 	std::shared_ptr<CHAR_DATA> character;	// linked to char       //
 	std::shared_ptr<CHAR_DATA> original;	// original char if switched     //
+
+	// registering account state from here ...
+	std::string account_id;	// user's email address (account ID connected to this descriptor)
+	std::string confirmation_code;	// expected confirmation code if confirmation is in process
+	std::string account_password;	// first entered password (to compare it with confirmation password)
+	int account_password_attempt;	// current attempt of entering password (if more than ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD then go to enter account ID)
+	// ... to here (TODO: move to a standalone structure)
 
 	DESCRIPTOR_DATA *snooping;	// Who is this char snooping  //
 	DESCRIPTOR_DATA *snoop_by;	// And who is snooping this char //

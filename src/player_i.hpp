@@ -38,6 +38,7 @@ public:
 	virtual room_rnum get_was_in_room() const { return NOWHERE; };
 	virtual void set_was_in_room(room_rnum/* was_in_room*/) {};
 
+	// TODO: get rid of me
 	virtual std::string const & get_passwd() const { return empty_const_str; };
 	virtual void set_passwd(std::string const &/* passwd*/) {};
 

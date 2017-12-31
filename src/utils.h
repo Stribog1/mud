@@ -964,7 +964,6 @@ inline T VPOSI(const T val, const T min, const T max)
 // Hrm, not many.  We should make more. -gg 3/4/99
 #define STATE(d)  ((d)->connected)
 
-
 // object utils *********************************************************
 #define GET_OBJ_UID(obj)	((obj)->get_uid())
 

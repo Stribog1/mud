@@ -626,7 +626,7 @@ int perform_subst(DESCRIPTOR_DATA * t, char *orig, char *subst);
 int perform_alias(DESCRIPTOR_DATA * d, char *orig);
 void record_usage(void);
 char *make_prompt(DESCRIPTOR_DATA * point);
-void check_idle_passwords(void);
+void check_idle_connections(void);
 void heartbeat(const int missed_pulses);
 struct in_addr *get_bind_addr(void);
 int parse_ip(const char *addr, struct in_addr *inaddr);
@@ -1824,7 +1824,7 @@ void heartbeat(const int missed_pulses)
 
 	if (!(pulse % (40 * PASSES_PER_SEC)))
 	{
-		check_idle_passwords();
+		check_idle_connections();
 	}
 
 // экономим процессор. mobile_activity() дергать каждый пульс совсем не обязательно.
@@ -3092,7 +3092,9 @@ int process_output(DESCRIPTOR_DATA * t)
 	}// end by WorM
 
 	if (STATE(t) == CON_PLAYING && t->character)
+	{
 		t->msdp_report_changed_vars();
+	}
 
 	// add a prompt
 	strncat(i, make_prompt(t), MAX_PROMPT_LENGTH);
@@ -4059,16 +4061,21 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	delete d;
 }
 
-
-void check_idle_passwords(void)
+void check_idle_connections(void)
 {
 	DESCRIPTOR_DATA *d, *next_d;
 
 	for (d = descriptor_list; d; d = next_d)
 	{
 		next_d = d->next;
-		if (STATE(d) != CON_PASSWORD && STATE(d) != CON_GET_NAME && STATE(d) != CON_GET_KEYTABLE)
+		if (STATE(d) != CON_GET_ACCOUNT_ID
+			&& STATE(d) != CON_GET_NEW_ACCOUNT_ID
+			&& STATE(d) != CON_ACCOUNT_PASSWORD
+			&& STATE(d) != CON_GET_KEYTABLE)
+		{
 			continue;
+		}
+
 		if (!d->idle_tics)
 		{
 			d->idle_tics++;

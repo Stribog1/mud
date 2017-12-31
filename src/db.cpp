@@ -63,6 +63,7 @@
 #include "title.hpp"
 #include "top.h"
 #include "class.hpp"
+#include "accounts.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
@@ -103,7 +104,6 @@ int top_of_trigt = 0;		// top of trigger index table
 
 INDEX_DATA *mob_index;		// index table for mobile file
 mob_rnum top_of_mobt = 0;	// top of mobile index table
-void Load_Criterion(pugi::xml_node XMLCriterion, int type);
 void load_speedwalk();
 void load_class_limit();
 int global_uid = 0;
@@ -112,7 +112,7 @@ struct zone_data *zone_table;	// zone table
 zone_rnum top_of_zone_table = 0;	// top element of zone tab
 struct message_list fight_messages[MAX_MESSAGES];	// fighting messages
 extern int slot_for_char(CHAR_DATA * ch, int slot_num);
-PlayersIndex player_table;	// index to plr file
+PlayersIndex player_table;	// index to plr file (all players registered game)
 
 bool player_exists(const long id) { return player_table.player_exists(id); }
 
@@ -1092,10 +1092,7 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!str_cmp(arg, "all") || *arg == '*')
 	{
-		if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
-		{
-			prune_crlf(GREETINGS);
-		}
+		file_to_string_alloc(GREETINGS_FILE, &GREETINGS);
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
 		file_to_string_alloc(CREDITS_FILE, &credits);
 		file_to_string_alloc(MOTD_FILE, &motd);
@@ -1159,8 +1156,7 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		file_to_string_alloc(NAME_RULES_FILE, &name_rules);
 	else if (!str_cmp(arg, "greetings"))
 	{
-		if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
-			prune_crlf(GREETINGS);
+		file_to_string_alloc(GREETINGS_FILE, &GREETINGS);
 	}
 	else if (!str_cmp(arg, "xhelp"))
 	{
@@ -2410,8 +2406,7 @@ void boot_db(void)
 	file_to_string_alloc(HANDBOOK_FILE, &handbook);
 	file_to_string_alloc(BACKGROUND_FILE, &background);
 	file_to_string_alloc(NAME_RULES_FILE, &name_rules);
-	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
-		prune_crlf(GREETINGS);
+	file_to_string_alloc(GREETINGS_FILE, &GREETINGS);
 
 	boot_profiler.next_step("Loading new skills definitions");
     log("Loading NEW skills definitions");
@@ -2497,6 +2492,17 @@ void boot_db(void)
 	boot_profiler.next_step("Loading players index");
 	log("Generating player index.");
 	build_player_index();
+
+	boot_profiler.next_step("Loading accounts");
+	log("Loading accounts.");
+	if (!accounts.load())
+	{
+		std::stringstream ss;
+		ss << "SYSERR: Couldn't load accounts list. " << accounts.get_last_error();
+		log(ss.str().c_str());
+
+		exit(1);
+	}
 
 	// хэши читать после генерации плеер-таблицы
 	boot_profiler.next_step("Loading CRC system");
@@ -2744,7 +2750,6 @@ void boot_db(void)
 	load_cities();
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
-	
 }
 
 // reset the time in the game from file

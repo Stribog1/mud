@@ -71,6 +71,7 @@
 #include "conf.h"
 #include "bonus.h"
 #include "debug.utils.hpp"
+#include "accounts.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -460,11 +461,6 @@ void do_cities(CHAR_DATA *ch, char*, int, int);
 
 #define MAGIC_NUM 419
 #define MAGIC_LEN 8
-
-// здесь храним коды, которые отправили игрокам на почту
-// строка - это мыло, если один чар вошел с необычного места, то блочим сразу всех чаров на этом мыле,
-// пока не введет код (или до ребута)
-std::map<std::string, int> new_loc_codes;
 
 void do_debug_queues(CHAR_DATA * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/)
 {
@@ -2210,7 +2206,7 @@ int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 			&& i->character
 			&& !IS_IMMORTAL(i->character)
 			&& (STATE(i) == CON_PLAYING
-				|| STATE(i) == CON_MENU))
+				|| STATE(i) == CON_ACCOUNT))
 		{
 			switch (CheckProxy(d))
 			{
@@ -2743,10 +2739,8 @@ bool ValidateStats(DESCRIPTOR_DATA * d)
 
 void DoAfterPassword(DESCRIPTOR_DATA * d)
 {
-	int load_result;
-
 	// Password was correct.
-	load_result = GET_BAD_PWS(d->character);
+	const auto failed_login_attempts = GET_BAD_PWS(d->character);
 	GET_BAD_PWS(d->character) = 0;
 	d->bad_pws = 0;
 
@@ -2758,6 +2752,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
+
 	if (GET_LEVEL(d->character) < circle_restrict)
 	{
 		SEND_TO_Q("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
@@ -2766,43 +2761,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
-	if (new_loc_codes.count(GET_EMAIL(d->character)) != 0)
-	{
-		SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
-		STATE(d) = CON_RANDOM_NUMBER;
-		return;
-	}
-	// нам нужен массив сетей с маской /24
-	std::set<uint32_t> subnets;
 
-	struct logon_data * log_info = LOGON_LIST(d->character);
-
-	// маска сети /24, можно покрутить в большую сторону, если есть желание
-	uint32_t MASK = 16777215;
-	while (log_info)
-	{
-		uint32_t current_subnet = inet_addr(log_info->ip) & MASK;
-		subnets.insert(current_subnet);
-		log_info = log_info->next;
-	}
-	if (subnets.size() != 0)
-	{
-		if (subnets.count(inet_addr(d->host) & MASK) == 0)
-		{
-			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
-			mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
-			if (PRF_FLAGGED(d->character, PRF_IPCONTROL)) {
-				int random_number = number(1000000, 9999999);
-				new_loc_codes[GET_EMAIL(d->character)] = random_number;
-				std::string cmd_line =  str(boost::format("python3 send_code.py %s %d &") % GET_EMAIL(d->character) % random_number);
-				auto result = system(cmd_line.c_str());
-				UNUSED_ARG(result);
-				SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
-				STATE(d) = CON_RANDOM_NUMBER;
-				return;
-			}
-		}
-	}
 	// check and make sure no other copies of this player are logged in
 	if (perform_dupe_check(d))
 	{
@@ -2815,15 +2774,16 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 
 	log("%s [%s] has connected.", GET_NAME(d->character), d->host);
 
-	if (load_result)
+	if (failed_login_attempts)
 	{
 		sprintf(buf, "\r\n\r\n\007\007\007"
 				"%s%d LOGIN FAILURE%s SINCE LAST SUCCESSFUL LOGIN.%s\r\n",
-				CCRED(d->character, C_SPR), load_result,
-				(load_result > 1) ? "S" : "", CCNRM(d->character, C_SPR));
+				CCRED(d->character, C_SPR), failed_login_attempts,
+				(failed_login_attempts > 1) ? "S" : "", CCNRM(d->character, C_SPR));
 		SEND_TO_Q(buf, d);
 		GET_BAD_PWS(d->character) = 0;
 	}
+
 	time_t tmp_time = LAST_LOGON(d->character);
 	sprintf(buf, "\r\nПоследний раз вы заходили к нам в %s с адреса (%s).\r\n",
 			rustime(localtime(&tmp_time)), GET_LASTIP(d->character));
@@ -3073,7 +3033,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		d->keytable = (ubyte) * arg - (ubyte) '0';
 		ip_log(d->host);
 		SEND_TO_Q(GREETINGS, d);
-		STATE(d) = CON_GET_NAME;
+		STATE(d) = CON_GET_ACCOUNT_ID;
 		break;
 
 	case CON_GET_NAME:	// wait for input of name
@@ -3190,22 +3150,15 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				}
 				else  	// undo it just in case they are set
 				{
-					if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, PRF_CODERINFO))
-					{
-						SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
-						SEND_TO_Q("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
-						SEND_TO_Q("Имя и пароль через пробел : ", d);
-						d->character.reset();
+					// TODO: check that this character belongs to the current account.
 
-						return;
-					}
+					return;	// bu default treat any character as not belonging to the current account.
 
 					PLR_FLAGS(d->character).unset(PLR_MAILING);
 					PLR_FLAGS(d->character).unset(PLR_WRITING);
 					PLR_FLAGS(d->character).unset(PLR_CRYO);
-					SEND_TO_Q("Персонаж с таким именем уже существует. Введите пароль : ", d);
-					d->idle_tics = 0;
-					STATE(d) = CON_PASSWORD;
+
+					DoAfterPassword(d);
 				}
 			}
 			else  	// player unknown -- make new character
@@ -3271,13 +3224,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			switch (process_auto_agreement(d))
 			{
 			case 0:	// Auto - agree
-				sprintf(buf, "Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
-						GET_PAD(d->character, 1));
-				SEND_TO_Q(buf, d);
-				STATE(d) = CON_NEWPASSWD;
+				// TODO: attach new player to the current account
+				STATE(d) = CON_RMOTD;
 				return;
 
-			case 1:	// Auto -disagree
+			case 1:	// Auto - disagree
 				STATE(d) = CON_CLOSE;
 				return;
 
@@ -3381,14 +3332,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		switch (process_auto_agreement(d))
 		{
 		case 0:	// Auto - agree
-			sprintf(buf,
-					"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
-					GET_PAD(d->character, 1));
-			SEND_TO_Q(buf, d);
-			STATE(d) = CON_NEWPASSWD;
+			// TODO: attach new player to the current account
+			STATE(d) = CON_RMOTD;
 			return;
 
-		case 1:	// Auto -disagree
+		case 1:	// Auto - disagree
 			d->character.reset();
 			SEND_TO_Q("Выберите другое имя : ", d);
 			return;
@@ -3400,107 +3348,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ]? ", d);
 		STATE(d) = CON_QSEX;
 		return;
-
-	case CON_PASSWORD:	// get pwd for known player
-		/*
-		 * To really prevent duping correctly, the player's record should
-		 * be reloaded from disk at this point (after the password has been
-		 * typed).  However I'm afraid that trying to load a character over
-		 * an already loaded character is going to cause some problem down the
-		 * road that I can't see at the moment.  So to compensate, I'm going to
-		 * (1) add a 15 or 20-second time limit for entering a password, and (2)
-		 * re-add the code to cut off duplicates when a player quits.  JE 6 Feb 96
-		 */
-
-		SEND_TO_Q("\r\n", d);
-
-		if (!*arg)
-		{
-			STATE(d) = CON_CLOSE;
-		}
-		else
-		{
-			if (!Password::compare_password(d->character.get(), arg))
-			{
-				sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
-				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-				GET_BAD_PWS(d->character)++;
-				d->character->save_char();
-				if (++(d->bad_pws) >= max_bad_pws)  	// 3 strikes and you're out.
-				{
-					SEND_TO_Q("Неверный пароль... Отсоединяемся.\r\n", d);
-					STATE(d) = CON_CLOSE;
-				}
-				else
-				{
-					SEND_TO_Q("Неверный пароль.\r\nПароль : ", d);
-				}
-				return;
-			}
-			DoAfterPassword(d);
-		}
-		break;
-
-	case CON_NEWPASSWD:
-	case CON_CHPWD_GETNEW:
-		if (!Password::check_password(d->character.get(), arg))
-		{
-			sprintf(buf, "\r\n%s\r\n", Password::BAD_PASSWORD);
-			SEND_TO_Q(buf, d);
-			SEND_TO_Q("Пароль : ", d);
-			return;
-		}
-
-		Password::set_password(d->character.get(), arg);
-
-		SEND_TO_Q("\r\nПовторите пароль, пожалуйста : ", d);
-		if (STATE(d) == CON_NEWPASSWD)
-		{
-			STATE(d) = CON_CNFPASSWD;
-		}
-		else
-		{
-			STATE(d) = CON_CHPWD_VRFY;
-		}
-
-		break;
-
-	case CON_CNFPASSWD:
-	case CON_CHPWD_VRFY:
-		if (!Password::compare_password(d->character.get(), arg))
-		{
-			SEND_TO_Q("\r\nПароли не соответствуют... повторим.\r\n", d);
-			SEND_TO_Q("Пароль: ", d);
-			if (STATE(d) == CON_CNFPASSWD)
-			{
-				STATE(d) = CON_NEWPASSWD;
-			}
-			else
-			{
-				STATE(d) = CON_CHPWD_GETNEW;
-			}
-			return;
-		}
-
-		if (STATE(d) == CON_CNFPASSWD)
-		{
-			GET_KIN(d->character) = 0; // added by WorM: Выставляем расу в Русич(коммент выше)
-        		SEND_TO_Q(class_menu, d);
-			SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
-				  " \r\nсправка <интересующая профессия>): ", d);
-			STATE(d) = CON_QCLASS;
-		}
-		else
-		{
-			sprintf(buf, "%s заменил себе пароль.", GET_NAME(d->character));
-			add_karma(d->character.get(), buf, "");
-			d->character->save_char();
-			SEND_TO_Q("\r\nГотово.\r\n", d);
-			SEND_TO_Q(MENU, d);
-			STATE(d) = CON_MENU;
-		}
-
-		break;
 
 	case CON_QSEX:		// query sex of new user
 		if (pre_help(d->character.get(), arg))
@@ -3866,236 +3713,6 @@ Sventovit
 		}
 
 		do_entergame(d);
-
-		break;
-
-	case CON_RANDOM_NUMBER:
-		{
-			int code_rand = atoi(arg);
-
-			if (new_loc_codes.count(GET_EMAIL(d->character)) == 0)
-			{
-				break;
-			}
-
-			if (new_loc_codes[GET_EMAIL(d->character)] != code_rand)
-			{
-				SEND_TO_Q("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
-				STATE(d) = CON_CLOSE;
-				break;
-			}
-
-			new_loc_codes.erase(GET_EMAIL(d->character));
-			add_logon_record(d);
-			DoAfterPassword(d);
-
-			break;
-		}
-
-	case CON_MENU:		// get selection from main menu
-		switch (*arg)
-		{
-		case '0':
-			SEND_TO_Q("\r\nДо встречи на земле Киевской.\r\n", d);
-
-			if (GET_REMORT(d->character) == 0
-				&& GET_LEVEL(d->character) <= 25
-				&& !PLR_FLAGS(d->character).get(PLR_NODELETE))
-			{
-				int timeout = -1;
-				for (int ci = 0; GET_LEVEL(d->character) > pclean_criteria[ci].level; ci++)
-				{
-					//if (GET_LEVEL(d->character) == pclean_criteria[ci].level)
-					timeout = pclean_criteria[ci + 1].days;
-				}
-				if (timeout > 0)
-				{
-					time_t deltime = time(NULL) + timeout * 60 * 60 * 24;
-					sprintf(buf, "В случае вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
-							rustime(localtime(&deltime)));
-					SEND_TO_Q(buf, d);
-				}
-			};
-
-			STATE(d) = CON_CLOSE;
-
-			break;
-
-		case '1':
-			if (!check_dupes_email(d))
-			{
-				STATE(d) = CON_CLOSE;
-				break;
-			}
-
-			do_entergame(d);
-
-			break;
-
-		case '2':
-			if (d->character->player_data.description)
-			{
-				SEND_TO_Q("Ваше ТЕКУЩЕЕ описание:\r\n", d);
-				SEND_TO_Q(d->character->player_data.description, d);
-				/*
-				 * Don't free this now... so that the old description gets loaded
-				 * as the current buffer in the editor.  Do setup the ABORT buffer
-				 * here, however.
-				 *
-				 * free(d->character->player_data.description);
-				 * d->character->player_data.description = NULL;
-				 */
-				d->backstr = str_dup(d->character->player_data.description);
-			}
-
-			SEND_TO_Q("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
-			SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
-			d->writer.reset(new DelegatedStringWriter(d->character->player_data.description));
-			d->max_str = EXDSCR_LENGTH;
-			STATE(d) = CON_EXDESC;
-
-			break;
-
-		case '3':
-			page_string(d, background, 0);
-			STATE(d) = CON_RMOTD;
-			break;
-
-		case '4':
-			SEND_TO_Q("\r\nВведите СТАРЫЙ пароль : ", d);
-			STATE(d) = CON_CHPWD_GETOLD;
-			break;
-
-		case '5':
-			if (IS_IMMORTAL(d->character))
-			{
-				SEND_TO_Q("\r\nБоги бессмертны (с) Стрибог, просите чтоб пофризили :)))\r\n", d);
-				SEND_TO_Q(MENU, d);
-				break;
-			}
-
-			if (PLR_FLAGGED(d->character, PLR_HELLED)
-				|| PLR_FLAGGED(d->character, PLR_FROZEN))
-			{
-				SEND_TO_Q("\r\nВы находитесь в АДУ!!! Амнистии подобным образом не будет.\r\n", d);
-				SEND_TO_Q(MENU, d);
-				break;
-			}
-
-			if (GET_REMORT(d->character) > 5)
-			{
-				SEND_TO_Q("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
-				SEND_TO_Q(MENU, d);
-				break;
-			}
-
-			SEND_TO_Q("\r\nДля подтверждения введите свой пароль : ", d);
-			STATE(d) = CON_DELCNF1;
-
-			break;
-
-		case '6':
-			if (IS_IMMORTAL(d->character))
-			{
-				SEND_TO_Q("\r\nВам это ни к чему...\r\n", d);
-				SEND_TO_Q(MENU, d);
-				STATE(d) = CON_MENU;
-			}
-			else
-			{
-				ResetStats::print_menu(d);
-				STATE(d) = CON_MENU_STATS;
-			}
-			break;
-
-		case '7':
-			if (!PRF_FLAGGED(d->character, PRF_BLIND))
-			{
-				PRF_FLAGS(d->character).set(PRF_BLIND);
-				SEND_TO_Q("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
-				SEND_TO_Q(MENU, d);
-				STATE(d) = CON_MENU;
-			}
-			else
-			{
-				PRF_FLAGS(d->character).unset(PRF_BLIND);
-				SEND_TO_Q("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
-				SEND_TO_Q(MENU, d);
-				STATE(d) = CON_MENU;
-			}
-
-			break;
-
-		default:
-			SEND_TO_Q("\r\nЭто не есть правильный ответ!\r\n", d);
-			SEND_TO_Q(MENU, d);
-
-			break;
-		}
-
-		break;
-
-	case CON_CHPWD_GETOLD:
-		if (!Password::compare_password(d->character.get(), arg))
-		{
-			SEND_TO_Q("\r\nНеверный пароль.\r\n", d);
-			SEND_TO_Q(MENU, d);
-			STATE(d) = CON_MENU;
-		}
-		else
-		{
-			SEND_TO_Q("\r\nВведите НОВЫЙ пароль : ", d);
-			STATE(d) = CON_CHPWD_GETNEW;
-		}
-
-		return;
-
-	case CON_DELCNF1:
-		if (!Password::compare_password(d->character.get(), arg))
-		{
-			SEND_TO_Q("\r\nНеверный пароль.\r\n", d);
-			SEND_TO_Q(MENU, d);
-			STATE(d) = CON_MENU;
-		}
-		else
-		{
-			SEND_TO_Q("\r\n!!! ВАШ ПЕРСОНАЖ БУДЕТ УДАЛЕН !!!\r\n"
-					  "Вы АБСОЛЮТНО В ЭТОМ УВЕРЕНЫ?\r\n\r\n"
-					  "Наберите \"YES / ДА\" для подтверждения: ", d);
-			STATE(d) = CON_DELCNF2;
-		}
-
-		break;
-
-	case CON_DELCNF2:
-		if (!strcmp(arg, "yes")
-			|| !strcmp(arg, "YES")
-			|| !strcmp(arg, "да")
-			|| !strcmp(arg, "ДА"))
-		{
-			if (PLR_FLAGGED(d->character, PLR_FROZEN))
-			{
-				SEND_TO_Q("Вы решились на суицид, но Боги остановили вас.\r\n", d);
-				SEND_TO_Q("Персонаж не удален.\r\n", d);
-				STATE(d) = CON_CLOSE;
-				return;
-			}
-			if (GET_LEVEL(d->character) >= LVL_GRGOD)
-				return;
-			delete_char(GET_NAME(d->character));
-			sprintf(buf, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
-			SEND_TO_Q(buf, d);
-			sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GET_LEVEL(d->character));
-			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
-			STATE(d) = CON_CLOSE;
-			return;
-		}
-		else
-		{
-			SEND_TO_Q("\r\nПерсонаж не удален.\r\n", d);
-			SEND_TO_Q(MENU, d);
-			STATE(d) = CON_MENU;
-		}
 		break;
 
 	case CON_NAME2:
@@ -4220,11 +3837,12 @@ Sventovit
 		{
 			CREATE(GET_PAD(d->character, 5), strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 5), CAP(tmp_name));
-			sprintf(buf,
-					"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
-					GET_PAD(d->character, 1));
-			SEND_TO_Q(buf, d);
-			STATE(d) = CON_NEWPASSWD;
+
+			GET_KIN(d->character) = 0; // added by WorM: Выставляем расу в Русич(коммент выше)
+			SEND_TO_Q(class_menu, d);
+			SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
+				" \r\nсправка <интересующая профессия>): ", d);
+			STATE(d) = CON_QCLASS;
 		}
 		else
 		{
@@ -4383,15 +4001,148 @@ Sventovit
 		}
 
 		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
-		STATE(d) = CON_RMOTD;
+		d->connected = CON_RMOTD;
 
+		break;
+
+	case CON_GET_ACCOUNT_ID:
+		if (0 == str_cmp("новый", arg))
+		{
+			// create new account
+			d->connected = CON_GET_NEW_ACCOUNT_ID;
+		}
+		else if (!valid_email(arg))
+		{
+			SEND_TO_Q("This is not a valid email. Please enter correct one.\n", d);
+			d->connected = CON_GET_ACCOUNT_ID;
+		}
+		else
+		{
+			// log in to existing account
+			d->account_id = arg;
+			d->connected = CON_ACCOUNT_PASSWORD;
+		}
+		break;
+
+	case CON_ACCOUNT_PASSWORD:
+		if (accounts.check_password(d->account_id, arg))
+		{
+			d->connected = CON_ACCOUNT;
+		}
+		else
+		{
+			SEND_TO_Q("Password is wrong or such email is not registered in game database.\n", d);
+			d->connected = CON_GET_ACCOUNT_ID;
+		}
+		break;
+
+	case CON_GET_CONFIRMATION_CODE:
+		if (d->confirmation_code == arg)
+		{
+			// everything is ok, add new account and proceed to accounts menu
+			if (!accounts.add(d->account_id, d->account_password))
+			{
+				SEND_TO_Q("Failed to create account.\n", d);
+				d->connected = CON_GET_ACCOUNT_ID;
+			}
+			else
+			{
+				d->connected = CON_ACCOUNT;
+			}
+		}
+		else
+		{
+			// confirmation code is incorrect
+			SEND_TO_Q("Confirmation code is incorrect.\n", d);
+			d->connected = CON_GET_ACCOUNT_ID;
+		}
+		break;
+
+	case CON_GET_NEW_ACCOUNT_ID:
+		if (!valid_email(arg))
+		{
+			SEND_TO_Q("Email is incorrect.\n", d);
+			d->connected = CON_GET_ACCOUNT_ID;
+		}
+		else if (accounts.registered(arg))
+		{
+			SEND_TO_Q("Account with such ID has already been registered.\n", d);
+			d->connected = CON_GET_NEW_ACCOUNT_ID;
+		}
+		else
+		{
+			d->account_id = arg;
+			d->account_password_attempt = 0;
+			d->connected = CON_GET_NEW_ACCOUNT_PASSWORD;
+		}
+		break;
+
+	case CON_GET_NEW_ACCOUNT_PASSWORD:
+		if (!Password::check_password(d->account_id, arg))
+		{
+			++d->account_password_attempt;
+			std::stringstream ss;
+			ss << "Password doesn't satisfy all requirements. Attempt " << d->account_password_attempt
+				<< " of " << DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD << ".\n";
+			SEND_TO_Q(ss.str().c_str(), d);
+
+			if (d->account_password_attempt < DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD)
+			{
+				d->connected = CON_GET_NEW_ACCOUNT_PASSWORD;
+			}
+			else
+			{
+				d->connected = CON_GET_ACCOUNT_ID;
+			}
+		}
+		else
+		{
+			d->account_password = Password::generate_md5_hash(arg);
+			d->connected = CON_GET_NEW_ACCOUNT_PASSWORD_CONFIRMATION;
+		}
+		break;
+
+	case CON_GET_NEW_ACCOUNT_PASSWORD_CONFIRMATION:
+		if (!Password::compare_password(d->account_password, arg))
+		{
+			++d->account_password_attempt;
+			std::stringstream ss;
+			ss << "Passwords are different. Attempt " << d->account_password_attempt
+				<< " of " << DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD << ".\n";
+			SEND_TO_Q(ss.str().c_str(), d);
+
+			if (d->account_password_attempt < DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD)
+			{
+				d->connected = CON_GET_NEW_ACCOUNT_PASSWORD;
+			}
+			else
+			{
+				d->connected = CON_GET_ACCOUNT_ID;
+			}
+		}
+		else
+		{
+			// now confirm email
+			if (!d->send_confirmation_code())
+			{
+				SEND_TO_Q("Something went wrong while sending confirmation code. Contact gods if problem repeats.", d);
+				d->connected = CON_GET_ACCOUNT_ID;
+			}
+			else
+			{
+				d->connected = CON_GET_CONFIRMATION_CODE;
+			}
+		}
+		break;
+
+	case CON_ACCOUNT:
+		d->connected = CON_ACCOUNT;
 		break;
 
 	default:
 		log("SYSERR: Nanny: illegal state of con'ness (%d) for '%s'; closing connection.",
 			STATE(d), d->character ? GET_NAME(d->character) : "<unknown>");
-		STATE(d) = CON_DISCONNECT;	// Safest to do.
-
+		d->connected = CON_DISCONNECT;	// Safest to do.
 		break;
 	}
 }
