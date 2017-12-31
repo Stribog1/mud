@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(bylins CXX)
+project(bylins)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
+	src/accounts.cpp
 	src/act.comm.cpp
 	src/act.informative.cpp
 	src/act.item.cpp
@@ -156,6 +157,7 @@ set(SOURCES
 	src/debug.utils.cpp)
 
 set(HEADERS
+	src/accounts.hpp
 	src/world.characters.hpp
 	src/shops.implementation.hpp
 	src/global.objects.hpp
@@ -598,14 +600,18 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	endif ()
 endif ()
 
-# Main executable file.
-set(MAIN_EXECUTABLE src/main.cpp)
+add_subdirectory(sqlite3)	# SQLite itself
+add_subdirectory(CppSQLite3)	# C++ wrapper for SQLite
+include_directories(sqlite3 CppSQLite3)
 
-add_executable(circle ${MAIN_EXECUTABLE})
+# Main executable source file.
+set(MAIN_EXECUTABLE_SRC src/main.cpp)
+
+add_executable(circle ${MAIN_EXECUTABLE_SRC})
 if (NOT UNIX)
 	set_target_properties(circle PROPERTIES CXX_STANDARD 14)
 endif ()
-target_link_libraries(circle circle.library)
+target_link_libraries(circle circle.library CppSQLite3)
 
 # Testing part
 option(BUILD_TESTS "Build and run tests." YES)
