@@ -4072,7 +4072,7 @@ Sventovit
 		else
 		{
 			d->account_id = arg;
-			d->account_password_attempt = 0;
+			d->account_password_attempt = 1;
 			d->connected = CON_GET_NEW_ACCOUNT_PASSWORD;
 		}
 		break;
@@ -4086,7 +4086,7 @@ Sventovit
 				<< " of " << DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD << ".\n";
 			SEND_TO_Q(ss.str().c_str(), d);
 
-			if (d->account_password_attempt < DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD)
+			if (d->account_password_attempt <= DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD)
 			{
 				d->connected = CON_GET_NEW_ACCOUNT_PASSWORD;
 			}
@@ -4111,7 +4111,7 @@ Sventovit
 				<< " из " << DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD << ")\n";
 			SEND_TO_Q(ss.str().c_str(), d);
 
-			if (d->account_password_attempt < DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD)
+			if (d->account_password_attempt <= DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD)
 			{
 				d->connected = CON_GET_NEW_ACCOUNT_PASSWORD;
 			}
