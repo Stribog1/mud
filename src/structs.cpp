@@ -1305,7 +1305,7 @@ bool DESCRIPTOR_DATA::send_confirmation_code()
 	const auto result = true;
 	ss << " Confirmation code: " << confirmation_code << ".";
 #else
-	const auto result = 0 != system(command_line.str().c_str());
+	const auto result = 0 == system(command_line.str().c_str());
 #endif
 
 	if (!result)
