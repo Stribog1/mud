@@ -66,6 +66,8 @@ bool Accounts::add(const std::string& email, const std::string& password)
 	}
 
 	const auto new_account = std::make_shared<Account>(email, password);
+	m_accounts.push_back(new_account);
+	m_email_to_account_index[email] = --m_accounts.end();
 	return m_storage->add(new_account);
 }
 
