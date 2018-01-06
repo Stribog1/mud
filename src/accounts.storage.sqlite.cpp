@@ -145,8 +145,8 @@ bool SQLiteAccountsStorage::add(const Account::shared_ptr& account)
 		transaction.begin();
 
 		auto statement = m_database->compileStatement("insert into accounts (email, password, created) values (?, ?, ?);");
-		statement.bind(1, account->password().c_str());
-		statement.bind(2, account->email().c_str());
+		statement.bind(1, account->email().c_str());
+		statement.bind(2, account->password().c_str());
 		statement.bind(3, static_cast<sqlite_int64>(account->created()));
 		statement.execDML();
 
