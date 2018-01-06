@@ -1081,7 +1081,7 @@ namespace
 	class DefaultDescriptorPrinter: public AbstractDescriptorPrinter
 	{
 	public:
-		virtual void print(const char* message) override {}
+		virtual void print(const char*) override {}
 	};
 
 	class SimpleDescriptorPrinter : public AbstractDescriptorPrinter

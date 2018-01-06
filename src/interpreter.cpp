@@ -4141,7 +4141,7 @@ Sventovit
 
 	default:
 		log("SYSERR: Nanny: illegal state of con'ness (%d) for '%s'; closing connection.",
-			STATE(d), d->character ? GET_NAME(d->character) : "<unknown>");
+			static_cast<int>(STATE(d)), d->character ? GET_NAME(d->character) : "<unknown>");
 		d->connected = CON_DISCONNECT;	// Safest to do.
 		break;
 	}

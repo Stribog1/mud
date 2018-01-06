@@ -2499,7 +2499,7 @@ void boot_db(void)
 	{
 		std::stringstream ss;
 		ss << "SYSERR: Couldn't load accounts list. " << accounts.get_last_error();
-		log(ss.str().c_str());
+		log("%s", ss.str().c_str());
 
 		exit(1);
 	}
