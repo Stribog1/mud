@@ -1119,31 +1119,31 @@ ConnectionState& ConnectionState::operator=(const int value)
 	switch (value)
 	{
 	case CON_GET_ACCOUNT_ID:
-		m_printer->print("Enter your account ID (email address) or \"новый\" to create new account: ");
+		m_printer->print("Введите ваш адрес почты или \"новый\" для создания нового аккаунта: ");
 		break;
 
 	case CON_ACCOUNT_PASSWORD:
-		m_printer->print("Enter password of your account: ");
+		m_printer->print("Введите пароль вашего аккаунта: ");
 		break;
 
 	case CON_GET_NEW_ACCOUNT_ID:
-		m_printer->print("Enter your email address. This will be your account ID: ");
+		m_printer->print("Введите адрес почты (email). Это будет вашим аккаунтом: ");
 		break;
 
 	case CON_GET_NEW_ACCOUNT_PASSWORD:
-		m_printer->print("Enter new password: ");
+		m_printer->print("Введите пароль (не менее 8 знаков): ");
 		break;
 
 	case CON_GET_NEW_ACCOUNT_PASSWORD_CONFIRMATION:
-		m_printer->print("Confirm your password (just enter it again): ");
+		m_printer->print("Введите ваш новый пароль еще раз: ");
 		break;
 
 	case CON_GET_CONFIRMATION_CODE:
-		m_printer->print("Enter confirmation code: ");
+		m_printer->print("Введите код подтверждения посланный к вам на почту (email): ");
 		break;
 
 	case CON_ACCOUNT:
-		m_printer->print("Now you are in accounts menu. Enter your choice: ");
+		m_printer->print("Вы в меню выбора параметров аккаунта: ");
 		break;
 
 	default:
@@ -1299,7 +1299,7 @@ bool DESCRIPTOR_DATA::send_confirmation_code()
 	command_line << "python3 send_code.py " << account_id << " " << random_number << " &";
 
 	std::stringstream ss;
-	ss << "Confirmation code has been sent to " << account_id << ". Check your email.";
+	ss << "Код подтверждения отправлен на вашу электронную почту (email) " << account_id << ". Введите тут.";
 
 #ifdef WIN32
 	const auto result = true;

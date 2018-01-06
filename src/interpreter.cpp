@@ -4107,8 +4107,8 @@ Sventovit
 		{
 			++d->account_password_attempt;
 			std::stringstream ss;
-			ss << "Passwords are different. Attempt " << d->account_password_attempt
-				<< " of " << DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD << ".\n";
+			ss << "Пароль не подходит, повторите пожалуйста (попытка " << d->account_password_attempt
+				<< " из " << DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD << ")\n";
 			SEND_TO_Q(ss.str().c_str(), d);
 
 			if (d->account_password_attempt < DESCRIPTOR_DATA::ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD)
@@ -4125,7 +4125,7 @@ Sventovit
 			// now confirm email
 			if (!d->send_confirmation_code())
 			{
-				SEND_TO_Q("Something went wrong while sending confirmation code. Contact gods if problem repeats.", d);
+				SEND_TO_Q("Вам отправлен код подтверждения на электронную почту (email). ", d);
 				d->connected = CON_GET_ACCOUNT_ID;
 			}
 			else
