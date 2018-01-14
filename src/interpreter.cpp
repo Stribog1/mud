@@ -1747,14 +1747,6 @@ int reserved_word(const char *argument)
 	return (search_block(argument, reserved, TRUE) >= 0);
 }
 
-/*
- * determine if a given string is an abbreviation of another
- * (now works symmetrically -- JE 7/25/94)
- *
- * that was dumb.  it shouldn't be symmetrical.  JE 5/1/95
- *
- * returnss 1 if arg1 is an abbreviation of arg2
- */
 int is_abbrev(const char *arg1, const char *arg2)
 {
 	if (!*arg1)
@@ -2937,6 +2929,14 @@ int create_entry(player_index_element& element)
 	return static_cast<int>(player_table.append(element));
 }
 
+void print_free_names(std::ostream& os, const PlayersIndex& index)
+{
+	constexpr int SUGGESTIONS_COUNT = 4;
+	PlayersIndex::free_names_list_t names;
+	index.get_free_names(SUGGESTIONS_COUNT, names);
+	printList(names, os);
+}
+
 // deal with newcomers and other non-playing sockets
 void nanny(DESCRIPTOR_DATA * d, char *arg)
 {
@@ -3049,7 +3049,18 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		else if (!str_cmp("новый", arg))
 		{
 			SEND_TO_Q(name_rules, d);
-			SEND_TO_Q("Введите имя: ", d);
+
+			std::stringstream ss;
+			ss << "Введите имя";
+			if (0 < player_table.free_names_count())
+			{
+				ss << " (примеры доступных имен : ";
+				print_free_names(ss, player_table);
+			ss << ")";
+			}
+			ss << ": ";
+
+			SEND_TO_Q(ss.str().c_str(), d);
 			STATE(d) = CON_NEW_CHAR;
 			return;
 		}
@@ -4151,16 +4162,16 @@ Sventovit
 void GetOneParam(std::string & in_buffer, std::string & out_buffer)
 {
 	std::string::size_type beg_idx = 0, end_idx = 0;
-	beg_idx = in_buffer.find_first_not_of(" ");
+	beg_idx = in_buffer.find_first_not_of(' ');
 
 	if (beg_idx != std::string::npos)
 	{
 		// случай с кавычками
 		if (in_buffer[beg_idx] == '\'')
 		{
-			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of("\'", beg_idx)))
+			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of('\'', beg_idx)))
 			{
-				if (std::string::npos == (end_idx = in_buffer.find_first_of("\'", beg_idx)))
+				if (std::string::npos == (end_idx = in_buffer.find_first_of('\'', beg_idx)))
 				{
 					out_buffer = in_buffer.substr(beg_idx);
 					in_buffer.clear();
@@ -4175,9 +4186,9 @@ void GetOneParam(std::string & in_buffer, std::string & out_buffer)
 		}
 		else
 		{
-			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of(" ", beg_idx)))
+			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of(' ', beg_idx)))
 			{
-				if (std::string::npos == (end_idx = in_buffer.find_first_of(" ", beg_idx)))
+				if (std::string::npos == (end_idx = in_buffer.find_first_of(' ', beg_idx)))
 				{
 					out_buffer = in_buffer.substr(beg_idx);
 					in_buffer.clear();
