@@ -9,6 +9,7 @@ set(SOURCES
 	src/accounts.cpp
 	src/accounts.storage.cpp
 	src/accounts.storage.sqlite.cpp
+	src/account.menu.fsm.cpp
 	src/act.comm.cpp
 	src/act.informative.cpp
 	src/act.item.cpp
@@ -164,6 +165,7 @@ set(HEADERS
 	src/accounts.hpp
 	src/accounts.storage.hpp
 	src/accounts.storage.sqlite.hpp
+	src/account.menu.fsm.hpp
 	src/world.characters.hpp
 	src/shops.implementation.hpp
 	src/global.objects.hpp

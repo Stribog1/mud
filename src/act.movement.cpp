@@ -680,8 +680,11 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	dir = dir & 0x7f;
 
 	// Mortally drunked - it is loss direction
-	if (!IS_NPC(ch) && !leader && GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED && !on_horse(ch) &&
-			GET_COND(ch, DRUNK) >= number(CHAR_DRUNKED, 50))
+	if (!IS_NPC(ch)
+		&& !leader
+		&& GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED
+		&& !on_horse(ch)
+		&& GET_COND(ch, DRUNK) >= number(CHAR_DRUNKED, 50))
 	{
 		for (i = 0; i < NUM_OF_DIRS && ndir < 0; i++)
 		{
@@ -689,7 +692,9 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 			if (!EXIT(ch, ndir) || EXIT(ch, ndir)->to_room == NOWHERE ||
 					EXIT_FLAGGED(EXIT(ch, ndir), EX_CLOSED) ||
 					!(nm = legal_dir(ch, ndir, need_specials_check, TRUE)))
+			{
 				ndir = -1;
+			}
 			else
 			{
 				// должно работать...
@@ -934,6 +939,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		{
 			extract_char(horse, FALSE);
 		}
+
 		return (FALSE);
 	}
 
@@ -949,7 +955,8 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 	entry_memory_mtrigger(ch);
 
-	if (!greet_mtrigger(ch, dir) || !greet_otrigger(ch, dir))
+	if (!greet_mtrigger(ch, dir)
+		|| !greet_otrigger(ch, dir))
 	{
 		char_from_room(ch);
 		char_to_room(ch, was_in);
@@ -1088,9 +1095,13 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 	struct follow_type *k, *next;
 
 	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
+	{
 		return (0);
+	}
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NOWHERE)
+	{
 		send_to_char("Вы не сможете туда пройти...\r\n", ch);
+	}
 	else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED))
 	{
 		if (EXIT(ch, dir)->keyword)
@@ -1099,14 +1110,18 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 			send_to_char(buf2, ch);
 		}
 		else
+		{
 			send_to_char("Закрыто.\r\n", ch);
+		}
 	}
 	else
 	{
 		if (!ch->followers)
 		{
 			if (!do_simple_move(ch, dir, need_specials_check, master))
+			{
 				return (FALSE);
+			}
 		}
 		else
 		{

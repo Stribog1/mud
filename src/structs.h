@@ -1678,8 +1678,9 @@ private:
 	AbstractDescriptorPrinter::shared_ptr m_printer;
 };
 
-struct DESCRIPTOR_DATA
+class DESCRIPTOR_DATA
 {
+public:
 	static constexpr int ATEMPTS_TO_ENTER_NEW_ACCOUNT_PASSWORD = 3;
 
 	DESCRIPTOR_DATA();

@@ -5,7 +5,7 @@
 
 #include <memory>
 
-struct DESCRIPTOR_DATA;	// to avoid inclusion of "structs.h"
+class DESCRIPTOR_DATA;	// to avoid inclusion of "structs.h"
 class CHAR_DATA;		// to avoid inclusion of "char.hpp"
 
 namespace msdp

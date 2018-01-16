@@ -5,7 +5,7 @@
 
 #include <ostream>
 
-struct DESCRIPTOR_DATA;	// to avoid inclusion of "structs.h"
+class DESCRIPTOR_DATA;	// to avoid inclusion of "structs.h"
 
 namespace msdp
 {
