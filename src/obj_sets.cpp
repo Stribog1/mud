@@ -23,9 +23,6 @@
 #include "help.hpp"
 #include "sets_drop.hpp"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include <string>
 #include <vector>
 #include <map>

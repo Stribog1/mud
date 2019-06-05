@@ -1,11 +1,11 @@
 #include "boards.changelog.loaders.hpp"
 
+#include "boost.replacements.hpp"
+
 #include "logger.hpp"
 #include "boards.h"
 #include "boards.message.hpp"
 #include "boards.constants.hpp"
-
-#include <boost/algorithm/string/trim.hpp>
 
 #include <functional>
 #include <sstream>

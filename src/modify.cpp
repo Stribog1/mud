@@ -36,9 +36,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-
 void show_string(DESCRIPTOR_DATA * d, char *input);
 
 #define PARSE_FORMAT      0

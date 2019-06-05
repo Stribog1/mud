@@ -3,11 +3,13 @@
 * 2018 (c) bodrich
 */
 #include "accounts.hpp"
+
+#include "boost.replacements.hpp"
+
 #include "db.h"
 #include "comm.h"
 #include "password.hpp"
 #include "utils.h"
-#include <boost/algorithm/string.hpp>
 
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 extern std::string GetNameByUnique(long unique, bool god);

@@ -16,9 +16,6 @@
 #include "boards.h"
 #include "spells.h"
 
-#include <boost/tokenizer.hpp>
-#include <boost/algorithm/string.hpp>
-
 /**
 * Система привилегий иммов и демигодов, совмещенная с бывшим god.lst.
 * Убрано редактирование из мада и запись уида автоматом -> все изменения производятся прямой правкой файла на сервере.

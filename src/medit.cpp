@@ -32,7 +32,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <boost/format.hpp>
 #include <stack>
 #include <sstream>
 

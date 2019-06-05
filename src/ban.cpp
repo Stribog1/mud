@@ -21,10 +21,6 @@
 #include "conf.h"
 #include "global.objects.hpp"
 
-#include <boost/tokenizer.hpp>
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include <map>
 #include <fstream>
 #include <sstream>
@@ -396,12 +392,17 @@ void do_proxy(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (CompareParam(buffer2, "list") || CompareParam(buffer2, "список"))
 	{
-		boost::format proxyFormat(" %-15s   %-15s   %-2d   %s\r\n");
+		//boost::format proxyFormat(" %-15s   %-15s   %-2d   %s\r\n");
 		std::ostringstream out;
 		out << "Формат списка: IP | IP2 | Максимум соединений | Комментарий\r\n";
 
 		for (ProxyListType::const_iterator it = proxyList.begin(); it != proxyList.end(); ++it)
-			out << proxyFormat % it->second->textIp % it->second->textIp2 % it->second->num % it->second->text;
+		{
+			out << " " << std::setw(15) << std::left << it->second->textIp
+				<< "   " << std::setw(15) << std::left << it->second->textIp2
+				<< "   " << std::setw(2) << std::left << it->second->num
+				<< "   " << it->second->text;
+		}
 
 		page_string(ch->desc, out.str());
 
@@ -450,7 +451,7 @@ void do_proxy(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
+		boost::trim_if(buffer, boost::is_any_of(" \'"));
 		if (buffer.empty())
 		{
 			send_to_char("Укажите причину регистрации.\r\n", ch);

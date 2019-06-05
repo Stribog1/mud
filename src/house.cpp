@@ -30,10 +30,6 @@
 #include "help.hpp"
 #include "conf.h"
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <sys/stat.h>
 
 #include <algorithm>
@@ -5396,7 +5392,7 @@ void SetChestMode(CHAR_DATA *ch, std::string &buffer)
 		return;
 	}
 
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
+	boost::trim_if(buffer, boost::is_any_of(" \'"));
 	if (CompareParam(buffer, "нет"))
 	{
 		PRF_FLAGS(ch).unset(PRF_DECAY_MODE);
@@ -6270,7 +6266,11 @@ void tax_manage(CHAR_DATA *ch, std::string &buffer)
 				send_to_char(GOLD_TAX_FORMAT, ch);
 			}
 		}
-		catch (boost::bad_lexical_cast &)
+		catch (const std::invalid_argument &)
+		{
+			send_to_char(GOLD_TAX_FORMAT, ch);
+		}
+		catch (const std::out_of_range&)
 		{
 			send_to_char(GOLD_TAX_FORMAT, ch);
 		}

@@ -18,8 +18,6 @@
 #include "char.hpp"
 #include "char_player.hpp"
 
-#include <boost/algorithm/string.hpp>
-
 #include <sstream>
 
 extern void send_to_gods(char *text, bool demigod);

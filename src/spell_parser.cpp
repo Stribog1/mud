@@ -43,8 +43,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <boost/tokenizer.hpp>
-
 #include <vector>
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];

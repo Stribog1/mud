@@ -25,9 +25,6 @@
 #include "utils.h"
 #include "conf.h"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include <sstream>
 #include <iostream>
 #include <set>

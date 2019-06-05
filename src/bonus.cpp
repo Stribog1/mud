@@ -15,8 +15,6 @@
 #include "logger.hpp"
 #include "structs.h"
 
-#include <boost/algorithm/string/replace.hpp>
-
 #include <iostream>
 #include <fstream>
 
@@ -52,14 +50,54 @@ namespace Bonus
 		type_bonus = type;
 	}
 
+	namespace
+	{
+		// taken from https://thispointer.com/how-to-remove-substrings-from-a-string-in-c/
+		void eraseAllSubStr(std::string& mainStr, const std::string& toErase)
+		{
+			size_t pos = std::string::npos;
+
+			// Search for the substring in string in a loop untill nothing is found
+			while ((pos = mainStr.find(toErase)) != std::string::npos)
+			{
+				// If found then erase it from string
+				mainStr.erase(pos, toErase.length());
+			}
+		}
+	}
+
 	void bonus_log_add(const std::string& name)
 	{
 		time_t nt = time(nullptr);
 		std::stringstream ss;
-		ss << rustime(localtime(&nt)) << " " << name;
+		ss << rustime(localtime(&nt)) << " ";
+
+		std::string::size_type start = 0;
+		auto pos = start;
+		do
+		{
+			pos = name.find("\r\n", start);
+			if (std::string::npos != pos)
+			{
+				for (auto i = start; i != pos; ++i)
+				{
+					ss << name[i];
+				}
+
+				start = pos + 2;	// length of "\r\n"
+			}
+			else
+			{
+				const auto length = name.size();
+				for (auto i = start; i != length; ++i)
+				{
+					ss << name[i];
+				}
+			}
+		} while (pos != start);
+
 		std::string buf = ss.str();
-		boost::replace_all(buf, "\r\n", "");
-		bonus_log.push_back(buf );
+		bonus_log.push_back(buf);
 
 		std::ofstream fout("../log/bonus.log", std::ios_base::app);
 		fout << buf << std::endl;

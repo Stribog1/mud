@@ -61,10 +61,6 @@
 #include "bonus.h"
 #include "conf.h"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-
 #include <string>
 #include <sstream>
 #include <vector>
@@ -490,12 +486,21 @@ std::string space_before_string(char const *text)
 {
 	if (text)
 	{
-		std::string tmp(" ");
-		tmp += text;
-		boost::replace_all(tmp, "\n", "\n ");
-		boost::trim_right_if(tmp, boost::is_any_of(std::string(" ")));
-		return tmp;
+		std::stringstream ss;
+		auto it = text;
+		auto end = '\0';
+		while (*it != end)
+		{
+			ss << *it;
+			if (*it == '\n')
+			{
+				ss << ' ';
+			}
+		}
+
+		return ss.str();
 	}
+
 	return "";
 }
 
@@ -503,12 +508,21 @@ std::string space_before_string(std::string text)
 {
 	if (text != "")
 	{
-		std::string tmp(" ");
-		tmp += text;
-		boost::replace_all(tmp, "\n", "\n ");
-		boost::trim_right_if(tmp, boost::is_any_of(std::string(" ")));
-		return tmp;
+		std::stringstream ss;
+		auto it = text.begin();
+		auto end = text.end();
+		while (it != end)
+		{
+			ss << *it;
+			if (*it == '\n')
+			{
+				ss << ' ';
+			}
+		}
+
+		return ss.str();
 	}
+
 	return "";
 }
 
@@ -555,7 +569,7 @@ std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch)
 
 	if (AUTH_CUSTOM_LABEL(obj, ch))
 	{
-		return boost::str(boost::format("%s%s%s") % delim_l % obj->get_custom_label()->label_text % delim_r);
+		return (std::stringstream() << delim_l << obj->get_custom_label()->label_text << delim_r).str();
 	}
 
 	return "";

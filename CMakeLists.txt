@@ -170,10 +170,11 @@ set(SOURCES
 	src/id.cpp
 	src/stigmas.cpp
 	src/zone.table.cpp
-        src/strengthening.cpp)
+    src/strengthening.cpp)
 
 set(HEADERS
-        src/strengthening.hpp
+	src/boost.replacements.hpp
+	src/strengthening.hpp
 	src/accounts.hpp
 	src/blocking.queue.hpp
 	src/influxdb.hpp
@@ -344,20 +345,6 @@ set(CMAKE_EXE_LINKER_FLAGS_RELEASE "")
 set(CMAKE_EXE_LINKER_FLAGS_TEST "")
 set(CMAKE_EXE_LINKER_FLAGS_FASTTEST "")
 
-## Look for required components
-# Python
-# You can specify preferred Python version using cmake command line parameter. Like this:
-#     $ cmake -DPY_VERSION=3.4 ..
-if (UNIX)
-	set(DEFAULT_PYTHON_VERSION "3.4" CACHE STRING "Default value for PY_VERSION")
-else ()
-	set(DEFAULT_PYTHON_VERSION NO CACHE STRING "Default value for PY_VERSION")
-endif ()
-set(PY_VERSION ${DEFAULT_PYTHON_VERSION} CACHE STRING "Preferred Python version")
-if (PY_VERSION)
-	set(Python_ADDITIONAL_VERSIONS ${PY_VERSION})
-endif ()
-
 set(SCRIPTING_HEADERS src/scripting.hpp)
 set(SCRIPTING_SOURCES src/scripting.cpp)
 
@@ -367,53 +354,6 @@ if (TIMED_SCRIPT)
 	set(TIMED_SCRIPT_DEFINITION "-DTIMED_SCRIPT")
 endif ()
 add_definitions(${TIMED_SCRIPT_DEFINITION})
-
-# Turns on/off scripting. Use the option like:
-#     $ cmake -DSCRIPTING=ON..
-# to turn scripting ON.
-option(SCRIPTING "Turns on/off scripting engine" OFF)
-if (SCRIPTING)
-	message(STATUS "Turning scripting ON")
-	list(APPEND HEADERS ${SCRIPTING_HEADERS})
-	list(APPEND SOURCES ${SCRIPTING_SOURCES})
-	source_group("Scripting\\Headers" FILES ${SCRIPTING_HEADERS})
-	source_group("Scripting\\Sources" FILES ${SCRIPTING_SOURCES})
-	add_definitions(-DWITH_SCRIPTING)
-
-	find_package(PythonLibs)
-	if (NOT PYTHONLIBS_FOUND)
-		message(FATAL_ERROR "Python not found.")
-	endif ()
-
-	if (PYTHONLIBS_VERSION_STRING STRLESS "3.0.0")
-		message(FATAL_ERROR "Python of version 3 or later has not been found (found ${PYTHONLIBS_VERSION_STRING})")
-	endif ()
-	message(STATUS "Python libs version string is '${PYTHONLIBS_VERSION_STRING}'")
-
-	if (NOT CYGWIN)
-		if (UNIX)
-			set(DEFAULT_EXPLICIT_BP_VERSION YES)
-		else ()
-			set(DEFAULT_EXPLICIT_BP_VERSION NO)
-		endif ()
-		# Should we specify version of Boost python explicitly or not. Yes by default on Unix platforms.
-		option(EXPLICIT_BP_VERSION "Try to find boost python library with explicit version suffix" ${DEFAULT_EXPLICIT_BP_VERSION})
-		if (EXPLICIT_BP_VERSION AND PYTHONLIBS_VERSION_STRING)
-			string(REGEX REPLACE "^([0-9])\\.([0-9]).*$" "-py\\1\\2" BOOSTPYTHON_LIBS_SUFFIX ${PYTHONLIBS_VERSION_STRING})
-			message(STATUS "Using explicit boostpython library suffix '${BOOSTPYTHON_LIBS_SUFFIX}'")
-		else ()
-			set(BOOSTPYTHON_LIBS_SUFFIX "")
-		endif ()
-	else ()
-		set(BOOSTPYTHON_LIBS_SUFFIX "3")
-	endif ()
-
-	set(BOOST_PYTHON_MODULE python${BOOSTPYTHON_LIBS_SUFFIX})
-else()
-	message(STATUS "Turning scripting OFF")
-	set(BOOST_PYTHON_MODULE)
-	set(PYTHON_LIBRARIES)
-endif ()
 
 set(MSDP_FILES
 	src/msdp.hpp
@@ -441,53 +381,6 @@ add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
 	DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
 set_target_properties(versioning PROPERTIES FOLDER "Utility targets")
 
-set(CRAFT_TAILORING_FILES
-	lib.template/misc/craft/tailoring/index.xml)
-set(CRAFT_GENERAL_FILES
-	lib.template/misc/craft/index.xml)
-set(CRAFT_MATERIAL_FILES
-	lib.template/misc/craft/tough_leather.xml
-	lib.template/misc/craft/soft_leather.xml
-	lib.template/misc/craft/inwrought_flax.xml)
-set(CRAFT_RECIPE_FILES
-	lib.template/misc/craft/recipe1.xml)
-set(CRAFT_CRAFT_FILES
-	lib.template/misc/craft/craft1.xml)
-set(CRAFT_TEMPLATE_FILES
-	lib.template/misc/craft/material_template.xml
-	lib.template/misc/craft/prototype_template.xml
-	lib.template/misc/craft/recipe_template.xml)
-set(CRAFT_PROTOTYPES)
-set(CRAFT_SOURCE_FILES
-	src/craft.commands.cpp
-	src/craft.cpp
-	src/craft.logger.cpp
-	src/craft.static.cpp)
-set(CRAFT_HEADER_FILES
-	src/craft.commands.hpp
-	src/craft.hpp
-	src/craft.logger.hpp
-	src/craft.static.hpp)
-
-source_group("Craft\\Configuration" FILES ${CRAFT_GENERAL_FILES})
-source_group("Craft\\Configuration\\Tailoring" FILES ${CRAFT_TAILORING_FILES})
-source_group("Craft\\Configuration\\Templates" FILES ${CRAFT_TEMPLATE_FILES})
-source_group("Craft\\Configuration\\Materials" FILES ${CRAFT_MATERIAL_FILES})
-source_group("Craft\\Configuration\\Recipes" FILES ${CRAFT_RECIPE_FILES})
-source_group("Craft\\Configuration\\Crafts" FILES ${CRAFT_CRAFT_FILES})
-source_group("Craft\\Source files" FILES ${CRAFT_SOURCE_FILES})
-source_group("Craft\\Header files" FILES ${CRAFT_HEADER_FILES})
-
-set(CRAFT_FILES
-	${CRAFT_GENERAL_FILES}
-	${CRAFT_TAILORING_FILES}
-	${CRAFT_MATERIAL_FILES}
-	${CRAFT_RECIPE_FILES}
-	${CRAFT_CRAFT_FILES}
-	${CRAFT_TEMPLATE_FILES}
-	${CRAFT_SOURCE_FILES}
-	${CRAFT_HEADER_FILES})
-
 set(MISC_FILES
 	lib.template/misc/noob_help.xml
 	lib.template/misc/configuration.xml
@@ -495,7 +388,7 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES})
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${MISC_FILES})
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)
@@ -515,59 +408,14 @@ else ()
 endif ()
 add_dependencies(circle.library versioning changelog)
 
-# Boost
-set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)
-if (WIN32)
-	list(APPEND BOOST_MODULES locale)
-elseif (UNIX)
-	if (NOT DEFINED ENV{BOOST_ROOT} AND NOT DEFINED ENV{BOOST_INCLUDEDIR})
-		set(BOOST_INCLUDEDIR "/usr/include")
-		message(STATUS "Trying to use BOOST_INCLUDEDIR with value \"${BOOST_INCLUDEDIR}\"")
-	endif()
-	if (NOT DEFINED ENV{BOOST_ROOT} AND NOT DEFINED ENV{BOOST_LIBRARYDIR})
-		set(BOOST_LIBRARYDIR "/usr/lib/x86_64-linux-gnu")
-		message(STATUS "Trying to use BOOST_LIBRARYDIR with value \"${BOOST_LIBRARYDIR}\"")
-	endif()
-endif ()
-
-if (BOOST_NO_SYSTEM_PATHS)
-set(Boost_NO_SYSTEM_PATHS ON)
-endif ()
-
-if (NOT CYGWIN)
-	add_definitions("-DBOOST_PYTHON_STATIC_LIB")
-	set(Boost_USE_STATIC_LIBS ON)
-else ()
-endif ()
-
-if (DEFINED ENV{DEBUG_BOOST_FIND})
-	set(Boost_DEBUG ON)
-endif ()
-
 # In case of you have more than one Visual Studio and want to use specific version, uncomment the following three lines and specify compiler you want
 if (CMAKE_HOST_WIN32)
-	set(BOOST_REQUIRED_COMPILER "" CACHE STRING "Compiler which must be used to compile Boost libraries (for example: -vc141 for Visual Studio 15 (2017))")
-
-	if (BOOST_REQUIRED_COMPILER)
-		set(Boost_COMPILER "${BOOST_REQUIRED_COMPILER}")
-	else ()
-		set(Boost_COMPILER "-vc141")
-	endif ()
-
 	target_compile_options(circle.library PUBLIC /MP /MDd)
 	target_compile_options(circle.library PUBLIC $<$<CONFIG:Debug>:/Zi /Od>)
 	target_compile_options(circle.library PUBLIC $<$<CONFIG:Release>:/O2>)
 	target_compile_options(circle.library PUBLIC $<$<CONFIG:Test>:/Zi /Od>)
 	target_compile_options(circle.library PUBLIC $<$<CONFIG:FastTest>:/O2>)
 endif ()
-
-set(BOOST_REQUIRED_VERSION OFF CACHE STRING "Optional version for Boost (for example, 1.54)")
-set(BOOST_REQUIRED_VERSION_VALUE "")
-if (BOOST_REQUIRED_VERSION)
-	set(BOOST_REQUIRED_VERSION_VALUE "${BOOST_REQUIRED_VERSION}")
-endif ()
-
-find_package(Boost ${BOOST_REQUIRED_VERSION_VALUE} REQUIRED COMPONENTS ${BOOST_MODULES})
 
 # ZLib
 if (CMAKE_HOST_WIN32)
@@ -606,13 +454,6 @@ if (HAVE_ICONV)
 		target_link_libraries(circle.library ${ICONV_LIBRARIES})
 	endif ()
 endif ()
-
-include_directories(src
-	system ${Boost_INCLUDE_DIRS}
-	system ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(circle.library
-	${Boost_LIBRARIES}
-	${PYTHON_LIBRARIES})
 
 # Prepare options for test build
 set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")

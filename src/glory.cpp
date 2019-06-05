@@ -18,9 +18,6 @@
 #include "modify.h"
 #include "glory_misc.hpp"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-
 #include <sstream>
 
 extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);

@@ -12,8 +12,6 @@
 #include "db.h"
 #include "handler.h"
 
-#include <boost/format.hpp>
-
 #include <sstream>
 
 namespace DpsSystem

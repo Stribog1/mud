@@ -46,8 +46,6 @@
 #include "char_obj_utils.inl"
 #include "zone.table.hpp"
 
-#include <boost/format.hpp>
-
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct spell_create_type spell_create[];

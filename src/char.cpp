@@ -32,8 +32,6 @@
 #include "dg_scripts.h"
 #include "zone.table.hpp"
 
-#include <boost/format.hpp>
-
 #include <sstream>
 #include <list>
 #include <algorithm>

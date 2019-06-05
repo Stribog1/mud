@@ -16,8 +16,6 @@
 #include "char_player.hpp"
 #include "modify.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include <map>
 
 namespace GloryMisc

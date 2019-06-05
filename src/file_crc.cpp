@@ -11,8 +11,6 @@
 #include "interpreter.h"
 #include "comm.h"
 
-#include <boost/crc.hpp>
-
 #include <fstream>
 #include <string>
 #include <sstream>

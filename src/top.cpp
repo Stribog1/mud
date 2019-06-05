@@ -15,9 +15,6 @@
 #include "char.hpp"
 #include "conf.h"
 
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-
 #include <functional>
 #include <sstream>
 #include <iomanip>

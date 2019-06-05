@@ -19,10 +19,6 @@
 #include "utils.h"
 #include "structs.h"
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/range/algorithm/remove_if.hpp>
-
 #include <iterator>
 #include <sstream>
 #include <iomanip>

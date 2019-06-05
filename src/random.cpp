@@ -7,18 +7,6 @@
 #include "sysdep.h"
 #include "utils.h"
 
-#include <boost/version.hpp>
-#if BOOST_VERSION >= 104700
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/normal_distribution.hpp>
-#include <boost/random/uniform_01.hpp>
-#include <boost/random/binomial_distribution.hpp>
-#else
-#include <boost/random.hpp>
-#pragma message("HINT: You are using old version of boost")
-#endif
-
 namespace Random
 {
 	class NormalRand

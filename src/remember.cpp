@@ -14,8 +14,6 @@
 #include "house.h"
 #include "room.hpp"
 
-#include <boost/format.hpp>
-
 #include <algorithm>
 
 namespace Remember

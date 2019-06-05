@@ -16,10 +16,6 @@
 #include "logger.hpp"
 #include "conf.h"
 
-#include <boost/algorithm/string.hpp>
-#include "boost/multi_array.hpp"
-#include <boost/format.hpp>
-
 #include <map>
 #include <sstream>
 #include <iomanip>

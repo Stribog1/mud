@@ -19,8 +19,6 @@
 #include "conf.h"
 #include "pugixml.hpp"
 
-#include <boost/dynamic_bitset.hpp>
-
 #include <string>
 #include <list>
 #include <new>

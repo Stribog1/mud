@@ -15,9 +15,6 @@
 #include "zone.table.hpp"
 #include "utils.h"
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include <sstream>
 
 using namespace ExtMoney;

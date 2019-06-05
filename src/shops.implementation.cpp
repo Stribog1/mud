@@ -14,10 +14,6 @@
 #include "named_stuff.hpp"
 #include "pk.h"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-
 #include <sstream>
 
 extern int do_social(CHAR_DATA * ch, char *argument);	// implemented in the act.social.cpp

@@ -34,9 +34,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim_all.hpp>
-
 #include <string>
 
 extern const char *unused_spellname;

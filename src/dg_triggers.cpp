@@ -30,8 +30,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <boost/lexical_cast.hpp>
-
 //extrernal functions
 extern void mob_command_interpreter(CHAR_DATA* ch, char *argument);
 

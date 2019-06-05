@@ -13,8 +13,6 @@
 #include "features.hpp"
 #include "conf.h"
 
-#include <boost/format.hpp>
-
 #include <string>
 #include <array>
 #include <algorithm>

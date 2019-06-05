@@ -50,7 +50,6 @@
 #include "zone.table.hpp"
 
 #include <vector>
-#include <boost/lexical_cast.hpp>
 
 extern room_rnum r_mortal_start_room;
 

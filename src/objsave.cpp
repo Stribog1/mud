@@ -39,8 +39,6 @@
 #include "conf.h"
 #include "obj_sets.hpp"
 
-#include <boost/algorithm/string.hpp>
-
 #include <sstream>
 #include <vector>
 

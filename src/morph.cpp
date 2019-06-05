@@ -15,9 +15,6 @@
 #include "utils.h"
 #include "pugixml.hpp"
 
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-
 MorphListType IdToMorphMap;
 
 short MIN_WIS_FOR_MORPH=0;

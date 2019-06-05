@@ -15,8 +15,6 @@
 #include "pugixml.hpp"
 #include "backtrace.hpp"
 
-#include <boost/lexical_cast.hpp>
-
 #include <algorithm>
 
 extern void extract_trigger(TRIG_DATA * trig);

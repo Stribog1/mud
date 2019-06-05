@@ -27,8 +27,6 @@
 #include "conf.h"
 #include "sysdep.h"
 
-#include <boost/version.hpp>
-
 #if CIRCLE_UNIX
 #include <sys/stat.h>
 #endif

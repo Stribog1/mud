@@ -18,7 +18,6 @@
 #include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
-#include "craft.commands.hpp"
 #include "heartbeat.commands.hpp"
 #include "obj.hpp"
 #include "comm.h"

@@ -115,8 +115,6 @@
 #define SOCKET_ERROR -1
 #endif
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
 #include <sys/stat.h>
 
 #include <string>

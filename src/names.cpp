@@ -23,8 +23,6 @@
 #include "char.hpp"
 #include "char_player.hpp"
 
-#include <boost/algorithm/string.hpp>
-
 #include <string>
 #include <map>
 #include <fstream>

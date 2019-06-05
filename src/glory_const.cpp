@@ -17,11 +17,6 @@
 #include "char_player.hpp"
 #include "glory_misc.hpp"
 
-
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include <list>
 #include <map>
 #include <string>

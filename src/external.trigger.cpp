@@ -1,7 +1,5 @@
 #include "external.trigger.hpp"
 
-#include <boost/filesystem/operations.hpp>
-
 ExternalTriggerChecker::ExternalTriggerChecker(const std::string& filename) : m_mtime(0), m_filename(filename)
 {
 	init();

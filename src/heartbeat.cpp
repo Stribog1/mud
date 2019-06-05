@@ -38,8 +38,6 @@
 #include "scripting.hpp"
 #endif
 
-#include <boost/algorithm/string/predicate.hpp>
-
 #include <iostream>
 
 constexpr bool FRAC_SAVE = true;

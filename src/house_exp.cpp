@@ -14,8 +14,6 @@
 
 #include "utils.string.hpp"
 
-#include <boost/algorithm/string.hpp>
-
 #include <fstream>
 #include <string>
 #include <sstream>

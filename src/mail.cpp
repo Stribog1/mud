@@ -29,9 +29,6 @@
 #include "conf.h"
 #include "pugixml.hpp"
 
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <string>
 #include <ctime>
 #include <unordered_map>

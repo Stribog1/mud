@@ -17,8 +17,6 @@
 #include "conf.h"
 #include "char_obj_utils.inl"
 
-#include <boost/format.hpp>
-
 #include <sstream>
 #include <string>
 

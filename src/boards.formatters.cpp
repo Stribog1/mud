@@ -6,6 +6,9 @@
 #include "conf.h"
 
 #include <sstream>
+
+#include <ctime>
+
 #include <memory.h>
 
 namespace Boards

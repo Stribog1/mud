@@ -49,8 +49,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <boost/format.hpp>
-
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
 extern room_rnum r_unreg_start_room;

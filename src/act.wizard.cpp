@@ -75,10 +75,6 @@
 #include "heartbeat.hpp"
 #include "zone.table.hpp"
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <sstream>
 #include <iomanip>
 #include <fstream>

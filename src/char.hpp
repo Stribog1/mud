@@ -4,6 +4,8 @@
 #ifndef CHAR_HPP_INCLUDED
 #define CHAR_HPP_INCLUDED
 
+#include "boost.replacements.hpp"
+
 #include "player_i.hpp"
 #include "morph.hpp"
 #include "obj_sets.hpp"
@@ -15,8 +17,6 @@
 #include "utils.h"
 #include "structs.h"
 #include "conf.h"
-
-#include <boost/dynamic_bitset.hpp>
 
 #include <unordered_map>
 #include <bitset>

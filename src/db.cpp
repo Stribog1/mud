@@ -67,8 +67,6 @@
 #include "names.hpp"
 #include "top.h"
 #include "class.hpp"
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
 
 #include <sys/stat.h>
 

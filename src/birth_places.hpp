@@ -18,7 +18,7 @@
 #include "sysdep.h"
 #include "structs.h"
 
-#include <pugixml.hpp>
+#include "pugixml.hpp"
 
 #include <vector>
 

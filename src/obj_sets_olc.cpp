@@ -18,8 +18,6 @@
 #include "spells.h"
 #include "utils.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include <string>
 #include <vector>
 #include <map>

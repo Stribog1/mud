@@ -34,8 +34,6 @@
 #include "zone.table.hpp"
 #include "daily_quest.hpp"
 
-#include <boost/lexical_cast.hpp>
-
 #ifdef _WIN32
 #else
 #include <sys/socket.h>
