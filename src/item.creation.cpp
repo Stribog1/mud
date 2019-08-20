@@ -1717,7 +1717,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// 4. Считаем сколько материала треба.
 	if (!make_fail)
 	{
-		make_fail = craftType->check_list_ingr(ch,parts);
+		make_fail = craftType->check_list_ingr(ch, parts, skill);
 	}
 	if (make_fail)
 	{
@@ -2480,13 +2480,21 @@ bool AbstractCreateObjectType::fail_create(CHAR_DATA* ch)
 	
 }
 
-bool AbstractCreateObjectType::check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_PARTS> parts)
+bool AbstractCreateObjectType::check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_PARTS> parts, int skill)
 {
 	bool make_fail = false;
 	int j;
 	
 		for (int i = 0; i < ingr_cnt; i++)
 		{
+			if (skill == SKILL_MAKE_WEAR && i == 0) //для шитья всегда раскраиваем шкуру 
+			{
+				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[0]);
+				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
+				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(3) + ".\r\n";
+				send_to_char(tmpstr.c_str(), ch);
+				continue;
+			}
 			//
 			// нужный материал = мин.материал +
 			// random(100) - skill
@@ -2691,8 +2699,8 @@ bool CreateWear::check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_
 					std::string tmpname = std::string(ingrs[i]->get_PName(1).c_str());
 					IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
 					ingrs[i]->set_weight(0);
-					extract_obj(ingrs[i]);
-					ingrs[i] = nullptr;
+//					extract_obj(ingrs[i]);
+//					ingrs[i] = nullptr;
 					//Если некст ингра в инве нет, то сообщаем об этом и идем в фэйл. Некст ингры все равно проверяем
 					if (!get_obj_in_list_ingr(obj_vnum_tmp, ch->carrying))
 					{
