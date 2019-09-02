@@ -176,14 +176,14 @@ class AbstractCreateObjectType
 		int		dam = 0;
 		int		ingr_cnt = 0,ingr_pow = 0;
 		int		craft_weight = 0;
-		//virtual AbstractCreateObjectType() {};
+
 		virtual ~AbstractCreateObjectType() {};
 		virtual void CreateObject(CHAR_DATA */* params*/) {};
 
 		int add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, const FLAG_DATA* add_flag,int delta);
 
 		bool fail_create(CHAR_DATA* ch);
-		bool check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_PARTS> parts, int skill);
+		virtual bool check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_PARTS> parts, int skill);
 		
 		int add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const std::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta);
         //к сожалению у нас не прототип. прийдется расчитывать отдельно
@@ -195,8 +195,6 @@ class AbstractCreateObjectType
 		void make_object(CHAR_DATA *ch, OBJ_DATA *obj, int ingr_cnt);
 		void load_ingr_in_create(OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt);
 		void add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *obj_to);
-		
-		
 };
 
 class CreateStuff : public AbstractCreateObjectType
