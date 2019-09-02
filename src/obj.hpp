@@ -888,7 +888,6 @@ private:
 
 	obj::Enchants m_enchants;
 
-	AbstractCreateObjectType *CreateObjectType;	// Полель крафт           //
 	int m_craft_timer;
 
 	TimedSpell m_timed_spell;    ///< временный обкаст
@@ -902,6 +901,8 @@ private:
 	bool m_purged;
 	// для сообщений сетов <активировано или нет, размер активатора>
 	std::pair<bool, int> m_activator;
+
+	AbstractCreateObjectType *CreateObjectType;	// Полель крафт           //
 
 	std::unordered_set<IDChangeObserver::shared_ptr> m_id_change_observers;
 	std::unordered_set<UIDChangeObserver::shared_ptr> m_uid_change_observers;
