@@ -178,7 +178,7 @@ class AbstractCreateObjectType
 		int		craft_weight = 0;
 
 		virtual ~AbstractCreateObjectType() {};
-		virtual void CreateObject(CHAR_DATA */* params*/) {};
+		virtual void CreateObject(CHAR_DATA * /* params*/) = 0;
 
 		int add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, const FLAG_DATA* add_flag,int delta);
 
