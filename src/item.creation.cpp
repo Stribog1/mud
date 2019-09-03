@@ -1644,18 +1644,13 @@ int MakeRecept::make(CHAR_DATA * ch)
 		ingr_lev = get_ingr_lev(ingrs[i]);
 		if (!IS_IMPL(ch) && (ingr_lev > (GET_LEVEL(ch) + 2 * GET_REMORT(ch))))
 		{
-			// !!! craftType here is not initialized yet !!!
-			//craftType->tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(3)
-			//	+ "\r\n и прекратили работу над " + tobj->get_PName(4) + ".\r\n";
-			//send_to_char(craftType->tmpstr.c_str(), ch);
+			send_to_char(ch,  "Вы побоялись испортить %s\r\n и прекратили работу над %s.\r\n", ingrs[i]->get_PName(3).c_str(), tobj->get_PName(4).c_str());
 			return (FALSE);
 		};
 		ingr_pow = get_ingr_pow(ingrs[i]);
 		if (ingr_pow < parts[i].min_power)
 		{
-			// !!! craftType here is not initialized yet !!!
-			//craftType->tmpstr = "$o не подходит для изготовления " + tobj->get_PName(1) + ".";
-			//act(craftType->tmpstr.c_str(), FALSE, ch, ingrs[i], 0, TO_CHAR);
+			send_to_char(ch, "%s не подходит для изготовления %s.\r\n", ingrs[i]->get_PName(0).c_str(), tobj->get_PName(1).c_str());
 			return (FALSE);
 		}
 		ingr_cnt++;
