@@ -183,7 +183,7 @@ class AbstractCreateObjectType
 		int add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, const FLAG_DATA* add_flag,int delta);
 
 		bool fail_create(CHAR_DATA* ch);
-		virtual bool check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_PARTS> parts, int skill);
+		bool check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_PARTS> parts, int skill);
 		
 		int add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const std::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta);
         //к сожалению у нас не прототип. прийдется расчитывать отдельно
@@ -212,7 +212,6 @@ class CreateWear : public AbstractCreateObjectType
 
 	CreateWear();
 	~CreateWear() {};
-	bool check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_PARTS> parts);
 	
 	virtual void CreateObject(CHAR_DATA * ch );
 };
