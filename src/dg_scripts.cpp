@@ -2256,19 +2256,82 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 		}
 		else if (!str_cmp(field, "iname"))
-			strcpy(str, GET_PAD(c, 0));
+		{
+			if (*subfield)
+			{
+				if (strlen(subfield) > MAX_MOB_NAME)
+					subfield[MAX_MOB_NAME - 1] = '\0';
+				c->player_data.PNames[0] = subfield;
+			}
+			else
+				strcpy(str, GET_PAD(c, 0));
+		}
 		else if (!str_cmp(field, "rname"))
-			strcpy(str, GET_PAD(c, 1));
+		{
+			if (*subfield)
+			{
+				if (strlen(subfield) > MAX_MOB_NAME)
+					subfield[MAX_MOB_NAME - 1] = '\0';
+				c->player_data.PNames[1] = subfield;
+			}
+			else
+				strcpy(str, GET_PAD(c, 1));
+		}
 		else if (!str_cmp(field, "dname"))
-			strcpy(str, GET_PAD(c, 2));
+		{
+			if (*subfield)
+			{
+				if (strlen(subfield) > MAX_MOB_NAME)
+					subfield[MAX_MOB_NAME - 1] = '\0';
+				c->player_data.PNames[2] = subfield;
+			}
+			else
+				strcpy(str, GET_PAD(c, 2));
+		}
 		else if (!str_cmp(field, "vname"))
-			strcpy(str, GET_PAD(c, 3));
+		{
+			if (*subfield)
+			{
+				if (strlen(subfield) > MAX_MOB_NAME)
+					subfield[MAX_MOB_NAME - 1] = '\0';
+				c->player_data.PNames[3] = subfield;
+			}
+			else
+				strcpy(str, GET_PAD(c, 3));
+		}
 		else if (!str_cmp(field, "tname"))
-			strcpy(str, GET_PAD(c, 4));
+		{
+			if (*subfield)
+			{
+				if (strlen(subfield) > MAX_MOB_NAME)
+					subfield[MAX_MOB_NAME - 1] = '\0';
+				c->player_data.PNames[4] = subfield;
+			}
+			else
+				strcpy(str, GET_PAD(c, 4));
+		}
 		else if (!str_cmp(field, "pname"))
-			strcpy(str, GET_PAD(c, 5));
+		{
+			if (*subfield)
+			{
+				if (strlen(subfield) > MAX_MOB_NAME)
+					subfield[MAX_MOB_NAME - 1] = '\0';
+				c->player_data.PNames[5] = subfield;
+			}
+			else
+				strcpy(str, GET_PAD(c, 5));
+		}
 		else if (!str_cmp(field, "name"))
-			strcpy(str, GET_NAME(c));
+		{
+			if (*subfield)
+			{
+				if (strlen(subfield) > MAX_MOB_NAME)
+					subfield[MAX_MOB_NAME - 1] = '\0';
+				c->set_name(subfield);
+			}
+			else
+				strcpy(str, GET_NAME(c));
+		}
 		else if (!str_cmp(field, "id"))
 			sprintf(str, "%c%ld", UID_CHAR, GET_ID(c));
 		else if (!str_cmp(field, "uniq"))
