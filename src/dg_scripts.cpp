@@ -2332,6 +2332,29 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			else
 				strcpy(str, GET_NAME(c));
 		}
+		else if (!str_cmp(field, "description"))
+		{
+			if (*subfield)
+			{
+				sprintf(buf, "%s\r\n", c->player_data.long_descr.c_str());
+				strcpy(c->player_data.long_descr, buf);
+			}
+			else
+			{
+				strcpy(str, c->player_data.long_descr.c_str());
+			}
+		}
+		else if (!str_cmp(field, "alias"))
+		{
+			if (*subfield)
+			{
+				c->set_pc_name(subfield);
+			}
+			else
+			{
+				strcpy(str, c->get_pc_name().c_str());
+			}
+		}
 		else if (!str_cmp(field, "id"))
 			sprintf(str, "%c%ld", UID_CHAR, GET_ID(c));
 		else if (!str_cmp(field, "uniq"))
@@ -2339,8 +2362,6 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			if (!IS_NPC(c))
 				sprintf(str, "%d", GET_UNIQUE(c));
 		}
-		else if (!str_cmp(field, "alias"))
-			strcpy(str, GET_PC_NAME(c));
 		else if (!str_cmp(field, "level"))
 			sprintf(str, "%d", GET_LEVEL(c));
 		else if (!str_cmp(field, "remort"))
