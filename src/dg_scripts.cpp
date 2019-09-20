@@ -51,6 +51,7 @@
 #include "coredump.hpp"
 #include "olc.h"
 #include "privilege.hpp"
+#include "char.cpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -2336,8 +2337,8 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			if (*subfield)
 			{
-				sprintf(buf, "%s\r\n", c->player_data.long_descr.c_str());
-				strcpy(c->player_data.long_descr, buf);
+				sprintf(buf, "%s\r\n", std::string(subfield).c_str());
+				c->player_data.long_descr = buf;
 			}
 			else
 			{
