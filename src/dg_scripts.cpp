@@ -2256,10 +2256,8 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				find_replacement(go, c->script.get(), NULL, MOB_TRIGGER, subfield, NULL, NULL, str);
 			}
 		}
-		else if (!str_cmp(field, "iname"))
-		{
-			if (*subfield)
-			{
+		else if (!str_cmp(field, "iname")) {
+			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
 				c->player_data.PNames[0] = subfield;
@@ -2269,8 +2267,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "rname"))
 		{
-			if (*subfield)
-			{
+			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
 				c->player_data.PNames[1] = subfield;
@@ -2278,10 +2275,8 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			else
 				strcpy(str, GET_PAD(c, 1));
 		}
-		else if (!str_cmp(field, "dname"))
-		{
-			if (*subfield)
-			{
+		else if (!str_cmp(field, "dname")) {
+			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
 				c->player_data.PNames[2] = subfield;
@@ -2289,10 +2284,8 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			else
 				strcpy(str, GET_PAD(c, 2));
 		}
-		else if (!str_cmp(field, "vname"))
-		{
-			if (*subfield)
-			{
+		else if (!str_cmp(field, "vname")) {
+			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
 				c->player_data.PNames[3] = subfield;
@@ -2300,10 +2293,8 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			else
 				strcpy(str, GET_PAD(c, 3));
 		}
-		else if (!str_cmp(field, "tname"))
-		{
-			if (*subfield)
-			{
+		else if (!str_cmp(field, "tname")) {
+			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
 				c->player_data.PNames[4] = subfield;
@@ -2311,10 +2302,8 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			else
 				strcpy(str, GET_PAD(c, 4));
 		}
-		else if (!str_cmp(field, "pname"))
-		{
-			if (*subfield)
-			{
+		else if (!str_cmp(field, "pname")) {
+			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
 				c->player_data.PNames[5] = subfield;
@@ -2322,10 +2311,8 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			else
 				strcpy(str, GET_PAD(c, 5));
 		}
-		else if (!str_cmp(field, "name"))
-		{
-			if (*subfield)
-			{
+		else if (!str_cmp(field, "name")) {
+			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
 				c->set_name(subfield);
@@ -2333,45 +2320,39 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			else
 				strcpy(str, GET_NAME(c));
 		}
-		else if (!str_cmp(field, "description"))
-		{
-			if (*subfield)
-			{
+		else if (!str_cmp(field, "description")) {
+			if (*subfield) {
 				sprintf(buf, "%s\r\n", std::string(subfield).c_str());
 				c->player_data.long_descr = buf;
 			}
-			else
-			{
+			else {
 				strcpy(str, c->player_data.long_descr.c_str());
 			}
 		}
-		else if (!str_cmp(field, "alias"))
-		{
-			if (*subfield)
-			{
+		else if (!str_cmp(field, "alias")) {
+			if (*subfield) {
 				c->set_pc_name(subfield);
 			}
-			else
-			{
+			else {
 				strcpy(str, c->get_pc_name().c_str());
 			}
 		}
+		else if (!str_cmp(field, "lag")) {
+			strcpy(str, c->->get_wait());
+		}
 		else if (!str_cmp(field, "id"))
 			sprintf(str, "%c%ld", UID_CHAR, GET_ID(c));
-		else if (!str_cmp(field, "uniq"))
-		{
+		else if (!str_cmp(field, "uniq")) {
 			if (!IS_NPC(c))
 				sprintf(str, "%d", GET_UNIQUE(c));
 		}
 		else if (!str_cmp(field, "level"))
 			sprintf(str, "%d", GET_LEVEL(c));
-		else if (!str_cmp(field, "remort"))
-		{
+		else if (!str_cmp(field, "remort")) {
 			if (!IS_NPC(c))
 				sprintf(str, "%d", GET_REMORT(c));
 		}
-		else if (!str_cmp(field, "hitp"))
-		{
+		else if (!str_cmp(field, "hitp")) {
 			GET_HIT(c) = (int)MAX(1, gm_char_field(c, field, subfield, (long)GET_HIT(c)));
 			sprintf(str, "%d", GET_HIT(c));
 		}
