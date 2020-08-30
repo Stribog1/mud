@@ -172,7 +172,7 @@ set(SOURCES
 	src/id.cpp
 	src/stigmas.cpp
 	src/zone.table.cpp
-    src/strengthening.cpp src/mercenary.cpp src/mercenary.h)
+    src/strengthening.cpp src/mercenary.cpp src/mercenary.h src/cmd.look.cpp)
 
 set(HEADERS
     src/act.movement.hpp
@@ -325,7 +325,7 @@ set(HEADERS
 	src/xml_loading_helper.hpp
 	src/debug.utils.hpp
 	src/stigmas.hpp
-	src/zone.table.hpp src/mercenary.cpp src/mercenary.h)
+	src/zone.table.hpp src/mercenary.cpp src/mercenary.h src/act.informative.h src/cmd.look.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

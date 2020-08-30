@@ -398,8 +398,7 @@ long find_class_bitvector(char arg)
 	}
 }
 
-long
-find_class_bitvector_vik(char arg)
+long find_class_bitvector_vik(char arg)
 {
 	arg = LOWER(arg);
 
@@ -440,8 +439,7 @@ find_class_bitvector_vik(char arg)
 
 
 
-long
-find_class_bitvector_step(char arg)
+long find_class_bitvector_step(char arg)
 {
 	arg = LOWER(arg);
 

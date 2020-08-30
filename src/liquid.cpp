@@ -1472,4 +1472,22 @@ void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 
 } // namespace drinkcon
 
+const char *diag_liquid_timer(const OBJ_DATA* obj)
+{	int tm;
+    if (GET_OBJ_VAL(obj, 3) == 1)
+        return "испортилось!";
+    if (GET_OBJ_VAL(obj, 3) == 0)
+        return "идеальное.";
+    tm = (GET_OBJ_VAL(obj, 3));
+    if (tm < 1440) // сутки
+        return "скоро испортится!";
+    else if (tm < 10080) //неделя
+        return "сомнительное.";
+    else if (tm < 20160) // 2 недели
+        return "выглядит свежим.";
+    else if (tm < 30240) // 3 недели
+        return "свежее.";
+    return "идеальное.";
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

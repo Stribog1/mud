@@ -15,6 +15,7 @@
 
 #include "interpreter.h"
 
+#include "cmd.look.h"
 #include "mercenary.h"
 #include "act.movement.hpp"
 #include "world.characters.hpp"
@@ -61,6 +62,7 @@
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
+#include <act.informative.h>
 #include "player_races.hpp"
 #include "birth_places.hpp"
 #include "help.hpp"
@@ -183,7 +185,6 @@ void do_consider(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_credits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_date(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_dc(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_diagnose(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_display(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_drink(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_drunkoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -197,13 +198,10 @@ void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_eat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_manadrain(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_equipment(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_examine(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_remort(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_remember_char(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_exit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_exits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_flee(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_horseon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_horseoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -250,8 +248,6 @@ void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_load(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_loadstat(CHAR_DATA *ch, char *argument, int cmd, int subbcmd);
-void do_look(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sides(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_not_here(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_offer(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -360,7 +356,6 @@ void do_tlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_tstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_vdelete(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_hearing(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_looking(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_ident(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_upgrade(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_armored(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -404,7 +399,6 @@ void Bonus::do_bonus_info(CHAR_DATA*, char*, int, int);
 void do_stun(CHAR_DATA*, char*, int, int);
 void do_showzonestats(CHAR_DATA*, char*, int, int);
 void do_overstuff(CHAR_DATA *ch, char*, int, int);
-void do_cities(CHAR_DATA *ch, char*, int, int);
 void do_send_text_to_char(CHAR_DATA *ch, char*, int, int);
 void do_add_wizard(CHAR_DATA *ch, char*, int, int);
 void do_touch_stigma(CHAR_DATA *ch, char*, int, int);

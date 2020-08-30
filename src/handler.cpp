@@ -122,6 +122,16 @@ extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
 extern char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
 extern void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
 
+char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list)
+{
+    for (auto i = list; i; i = i->next) {
+        if (isname(word, i->keyword)) {
+            return i->description;
+        }
+    }
+    return nullptr;
+}
+
 char *fname(const char *namelist)
 {
 	static char holder[30];

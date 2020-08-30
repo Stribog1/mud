@@ -1803,7 +1803,7 @@ bool ZoneFile::load_regular_zone()
 
 	rewind(file());
 	char *ptr;
-	auto num_of_cmds = 0;
+	auto numOfCmds = 0;
 	while (get_line(file(), buf))
 	{
 		ptr = buf;
@@ -1819,7 +1819,7 @@ bool ZoneFile::load_regular_zone()
 			zone.typeB_count++;
 		}
 
-		num_of_cmds++;	// this should be correct within 3 or so
+		numOfCmds++;	// this should be correct within 3 or so
 	}
 
 	rewind(file());
@@ -1840,14 +1840,14 @@ bool ZoneFile::load_regular_zone()
 		}
 	}
 
-	if (num_of_cmds == 0)
+	if (numOfCmds == 0)
 	{
 		log("SYSERR: %s is empty!", full_file_name().c_str());
 		exit(1);
 	}
 	else
 	{
-		CREATE(zone.cmd, num_of_cmds);
+		CREATE(zone.cmd, numOfCmds);
 	}
 
 	auto line_num = get_line(file(), buf);	// skip already processed "#<zone number> [<zone type>]" line

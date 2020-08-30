@@ -157,6 +157,7 @@ bool can_get_skill(CHAR_DATA *ch, int skill);
 bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl);
 int find_weapon_focus_by_skill(ESkill skill);
 int find_weapon_master_by_skill(ESkill skill);
+int get_pick_chance(int skill_pick, int lock_complexity);
 
 const short bonusSkillPointsPerRemort = 5;
 const short baseSkillLevel = 80;//базовый уровень умения, если не задано явно

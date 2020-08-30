@@ -54,9 +54,6 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer);
 // local functions
 void check_ice(int room);
 
-extern int get_pick_chance(int skill_pick, int lock_complexity);
-
-
 const int Reverse[NUM_OF_DIRS] = { 2, 3, 0, 1, 5, 4 };
 const char *DirIs[] =
 {

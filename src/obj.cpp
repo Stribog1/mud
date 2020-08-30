@@ -947,6 +947,16 @@ void OBJ_DATA::del_timed_spell(const int spell, const bool message)
 	m_timed_spell.del(this, spell, message);
 }
 
+bool OBJ_DATA::quest_item()
+{
+    if ((OBJ_FLAGGED(this, EExtraFlag::ITEM_NODECAY)) && (!(CAN_WEAR(this, EWearFlag::ITEM_WEAR_TAKE))))
+    {
+        return true;
+    }
+    return false;
+}
+
+
 void CObjectPrototype::set_ex_description(const char* keyword, const char* description)
 {
 	EXTRA_DESCR_DATA::shared_ptr d(new EXTRA_DESCR_DATA());

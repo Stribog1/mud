@@ -1,3 +1,5 @@
+#ifndef LIQUID_HPP
+#define LIQUID_HPP
 /*************************************************************************
 *   File: liquid.hpp                                   Part of Bylins    *
 *   Все по жидкостям                                                     *
@@ -55,6 +57,7 @@ void do_pour(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void name_from_drinkcon(OBJ_DATA * obj);
 void name_to_drinkcon(OBJ_DATA * obj, int type);
 bool is_potion(const OBJ_DATA *obj);
+const char *diag_liquid_timer(const OBJ_DATA* obj);
 
 class CObjectPrototype;	// to avoit inclusion of "obj.hpp"
 
@@ -66,5 +69,7 @@ std::string print_spells(CHAR_DATA *ch, const OBJ_DATA *obj);
 void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_obj);
 
 } // namespace drinkcon
+
+#endif //LIQUID_HPP
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

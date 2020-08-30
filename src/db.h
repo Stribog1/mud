@@ -96,6 +96,12 @@ struct reset_com
 	char *sarg2;		// string argument
 };
 
+struct sort_struct
+{
+    int sort_pos;
+    byte is_social;
+};
+
 struct _case
 {
 	// внум сундука

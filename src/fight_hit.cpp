@@ -12,6 +12,7 @@
 #include "house_exp.hpp"
 #include "poison.hpp"
 #include "bonus.h"
+#include <act.informative.h>
 
 // extern
 int extra_aco(int class_num, int level);

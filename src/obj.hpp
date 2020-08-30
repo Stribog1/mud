@@ -854,6 +854,7 @@ public:
 	void unsubscribe_from_uid_change(const UIDChangeObserver::shared_ptr& observer) { m_uid_change_observers.erase(observer); }
 
 	void attach_triggers(const triggers_list_t& trigs);
+	bool quest_item();
 
 private:
 	void zero_init();

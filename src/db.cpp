@@ -177,6 +177,8 @@ GameLoader world_loader;
 
 QuestBodrich qb;
 
+int NUM_OF_CMDS; // еще одна глобальная переменная, количество команд игроков
+sort_struct *cmd_sort_info = nullptr;
 
 // local functions
 void LoadGlobalUID(void);
@@ -215,7 +217,6 @@ TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages(void);
 void mag_assign_spells(void);
-void sort_commands(void);
 void Read_Invalid_List(void);
 int find_name(const char *name);
 int csort(const void *a, const void *b);
@@ -2498,6 +2499,44 @@ void zone_traffic_load() {
 	}
 }
 
+int sort_commands()
+{
+    int a, b, tmp;
+    int numOfCmds = 0;
+
+    // first, count commands (num_of_commands is actually one greater than the
+    // number of commands; it inclues the '\n'.
+
+    while (*cmd_info[numOfCmds].command != '\n')
+        numOfCmds++;
+
+    // create data array
+    CREATE(cmd_sort_info, numOfCmds);
+
+    // initialize it
+    for (a = 1; a < numOfCmds; a++)
+    {
+        cmd_sort_info[a].sort_pos = a;
+        cmd_sort_info[a].is_social = FALSE;
+    }
+
+    // the infernal special case
+    cmd_sort_info[find_command("insult")].is_social = TRUE;
+
+    // Sort.  'a' starts at 1, not 0, to remove 'RESERVED'
+    for (a = 1; a < numOfCmds - 1; a++)
+        for (b = a + 1; b < numOfCmds; b++)
+            if (strcmp(cmd_info[cmd_sort_info[a].sort_pos].command,
+                       cmd_info[cmd_sort_info[b].sort_pos].command) > 0)
+            {
+                tmp = cmd_sort_info[a].sort_pos;
+                cmd_sort_info[a].sort_pos = cmd_sort_info[b].sort_pos;
+                cmd_sort_info[b].sort_pos = tmp;
+            }
+    return numOfCmds;
+}
+
+
 // body of the booting system
 void boot_db(void)
 {
@@ -2668,7 +2707,7 @@ void boot_db(void)
 
 	boot_profiler.next_step("Sorting command list");
 	log("Sorting command list.");
-	sort_commands();
+	NUM_OF_CMDS = sort_commands();
 
 	boot_profiler.next_step("Reading banned site, proxy, privileges and invalid-name list.");
 	log("Reading banned site, proxy, privileges and invalid-name list.");

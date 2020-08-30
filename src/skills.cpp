@@ -1772,6 +1772,11 @@ bool can_get_skill(CHAR_DATA *ch, int skill)
 	return TRUE;
 }
 
+int get_pick_chance(int skill_pick, int lock_complexity)
+{
+    return (MIN(5, MAX(-5, skill_pick - lock_complexity)) + 5);
+}
+
 //  Реализация класса Skill
 // Закомментим поека за ненадобностью
 /*
