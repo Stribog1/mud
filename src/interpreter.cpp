@@ -2900,7 +2900,7 @@ int create_entry(player_index_element& element)
 
 void print_free_names(std::ostream& os, const PlayersIndex& index)
 {
-	constexpr int SUGGESTIONS_COUNT = 4;
+	constexpr int SUGGESTIONS_COUNT = 5;
 	PlayersIndex::free_names_list_t names;
 	index.get_free_names(SUGGESTIONS_COUNT, names);
 	os << JoinRange<PlayersIndex::free_names_list_t>(names);

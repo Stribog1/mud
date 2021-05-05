@@ -5942,66 +5942,49 @@ mob_rnum real_mobile(mob_vnum vnum)
 
 // данная функция работает с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
-int must_be_deleted(CHAR_DATA * short_ch)
-{
+int must_be_deleted(CHAR_DATA * short_ch) {
 	int ci, timeout;
 
-	if (PLR_FLAGS(short_ch).get(PLR_NODELETE))
-	{
-		return 0;
-	}
-
-	if (GET_REMORT(short_ch))
-		return (0);
-
-	if (PLR_FLAGS(short_ch).get(PLR_DELETED))
-	{
+	if (PLR_FLAGS(short_ch).get(PLR_DELETED)) {
 		return 1;
 	}
 
+	if (PLR_FLAGS(short_ch).get(PLR_NODELETE)) {
+		return 0;
+	}
+	if (GET_REMORT(short_ch)) {
+		return (0);
+	}
 	timeout = -1;
-	for (ci = 0; ci == 0 || pclean_criteria[ci].level > pclean_criteria[ci - 1].level; ci++)
-	{
-		if (GET_LEVEL(short_ch) <= pclean_criteria[ci].level)
-		{
+	for (ci = 0; ci == 0 || pclean_criteria[ci].level > pclean_criteria[ci - 1].level; ci++) {
+		if (GET_LEVEL(short_ch) <= pclean_criteria[ci].level) {
 			timeout = pclean_criteria[ci].days;
 			break;
 		}
 	}
-	if (timeout >= 0)
-	{
+	if (timeout >= 0) {
 		timeout *= SECS_PER_REAL_DAY;
-		if ((time(0) - LAST_LOGON(short_ch)) > timeout)
-		{
+		if ((time(0) - LAST_LOGON(short_ch)) > timeout) {
 			return (1);
 		}
 	}
-
 	return (0);
 }
 
 // данная функция работает с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
-void entrycount(char *name, const bool find_id /*= true*/)
-{
-	int deleted;
+void entrycount(char *name, const bool find_id /*= true*/) {
 	char filename[MAX_STRING_LENGTH];
 
-	if (get_filename(name, filename, PLAYERS_FILE))
-	{
+	if (get_filename(name, filename, PLAYERS_FILE)) {
 		Player t_short_ch;
 		Player *short_ch = &t_short_ch;
-		deleted = 1;
 		// персонаж загружается неполностью
-		if (load_char(name, short_ch, 1, find_id) > -1)
-		{
+		if (load_char(name, short_ch, 1, find_id) > -1) {
 			// если чар удален или им долго не входили, то не создаем для него запись
-			if (!must_be_deleted(short_ch))
-			{
-				deleted = 0;
+			if (!must_be_deleted(short_ch)) {
 
 				player_index_element element(GET_IDNUM(short_ch), GET_NAME(short_ch));
-
 				//added by WorM 2010.08.27 в индексе чистим мыло и ip
 				CREATE(element.mail, strlen(GET_EMAIL(short_ch)) + 1);
 				for (int i = 0; (element.mail[i] = LOWER(GET_EMAIL(short_ch)[i])); i++);
@@ -6015,17 +5998,8 @@ void entrycount(char *name, const bool find_id /*= true*/)
 				element.remorts = short_ch->get_remort();
 				element.timer = NULL;
 				element.plr_class = short_ch->get_class();
-				if (PLR_FLAGS(short_ch).get(PLR_DELETED))
-				{
-					element.last_logon = -1;
-					element.activity = -1;
-				}
-				else
-				{
-					element.last_logon = LAST_LOGON(short_ch);
-					element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
-				}
-
+				element.last_logon = LAST_LOGON(short_ch);
+				element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 				#ifdef TEST_BUILD
 				log("entry: char:%s level:%d mail:%s ip:%s", element.name(), element.level, element.mail, element.last_ip);
 				#endif
@@ -6036,41 +6010,36 @@ void entrycount(char *name, const bool find_id /*= true*/)
 				log("Adding new player %s", element.name());
 				player_table.append(element);
 			}
-			else
-			{
+			else {
+				// если чар уже удален, то стираем с диска его файл
+				log("Player %s already deleted - kill player file", name);
+				get_filename(name, filename, PLAYERS_FILE);
+				remove(filename);
+				// 2) Remove all other files
+				get_filename(name, filename, ALIAS_FILE);
+				remove(filename);
+				get_filename(name, filename, SCRIPT_VARS_FILE);
+				remove(filename);
+				get_filename(name, filename, PERS_DEPOT_FILE);
+				remove(filename);
+				get_filename(name, filename, SHARE_DEPOT_FILE);
+				remove(filename);
+				get_filename(name, filename, PURGE_DEPOT_FILE);
+				remove(filename);
+				get_filename(name, filename, TEXT_CRASH_FILE);
+				remove(filename);
+				get_filename(name, filename, TIME_CRASH_FILE);
+				remove(filename);
 				const auto& name = short_ch->get_name();
 				constexpr int MINIMAL_NAME_LENGTH = 5;
-				if (name.length() >= MINIMAL_NAME_LENGTH)
-				{
+				if (name.length() >= MINIMAL_NAME_LENGTH) {
 					player_table.add_free(name);
+				
 				}
 			}
 		}
-		else
-		{
-			log("SYSERR: Failed to load player %s.", name);
-		}
-
-		// если чар уже удален, то стираем с диска его файл
-		if (deleted)
-		{
-			log("Player %s already deleted - kill player file", name);
-			remove(filename);
-			// 2) Remove all other files
-			get_filename(name, filename, ALIAS_FILE);
-			remove(filename);
-			get_filename(name, filename, SCRIPT_VARS_FILE);
-			remove(filename);
-			get_filename(name, filename, PERS_DEPOT_FILE);
-			remove(filename);
-			get_filename(name, filename, SHARE_DEPOT_FILE);
-			remove(filename);
-			get_filename(name, filename, PURGE_DEPOT_FILE);
-			remove(filename);
-			get_filename(name, filename, TEXT_CRASH_FILE);
-			remove(filename);
-			get_filename(name, filename, TIME_CRASH_FILE);
-			remove(filename);
+		else {
+			log("SYSERR: Failed to load player %s, must be deleted?", name);
 		}
 	}
 	return;
